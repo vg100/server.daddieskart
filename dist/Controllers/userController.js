@@ -52,7 +52,7 @@ class userController {
                 if (!passwordMatch) {
                     return res.status(400).json({ message: 'Invalid email or password' });
                 }
-                const token = Jwt.sign({ userId: user._id, role: user.role }, "secret", { expiresIn: '7d' });
+                const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
                 res.json({ token });
             }
             catch (e) {
@@ -74,7 +74,7 @@ class userController {
     static getUserProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield user_1.default.findById(req.user.userId);
+                const user = yield user_1.default.findById(req.user._id);
                 res.json(user);
             }
             catch (e) {
@@ -85,7 +85,7 @@ class userController {
     static upadteUserProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield user_1.default.findById(req.user.userId);
+                const user = yield user_1.default.findById(req.user._id);
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
