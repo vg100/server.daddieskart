@@ -37,13 +37,10 @@ export class GlobalMiddleWare {
             if (!token) {
                 return res.status(401).json({ message: 'No token provided' });
             }
-            console.log(token, 'token')
             Jwt.verify(token, 'secret', (err, decoded) => {
                 if (err) {
                     return res.status(401).json({ message: 'Invalid token' });
                 }
-                console.log(decoded, 'token')
-                console.log(allowedRoles,'allowedRoles')
                 if (allowedRoles.includes(decoded.role)) {
                     req.user = decoded;
                     next();

@@ -49,7 +49,7 @@ export class userController {
                 return res.status(400).json({ message: 'Invalid email or password' });
             }
 
-            const token = Jwt.sign({ userId: user._id, role: user.role }, "secret", { expiresIn: '7d' });
+            const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
 
             res.json({ token });
 
@@ -77,7 +77,7 @@ export class userController {
 
     static async getUserProfile(req, res, next) {
         try {
-            const user = await User.findById(req.user.userId);
+            const user = await User.findById(req.user._id);
             res.json(user);
         } catch (e) {
             next(e);
@@ -90,7 +90,7 @@ export class userController {
 
     static async upadteUserProfile(req, res, next) {
         try {
-            const user = await User.findById(req.user.userId);
+            const user = await User.findById(req.user._id);
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
