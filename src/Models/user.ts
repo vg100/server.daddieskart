@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'seller', 'buyer'],
     default: 'buyer'
   },
+  Permissions: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Features',
+  }],
   profileImage: String,
   contactInfo: {
     address: String,

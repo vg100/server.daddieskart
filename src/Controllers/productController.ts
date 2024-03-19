@@ -3,7 +3,16 @@ import Product from "../Models/product";
 export class productController {
     static async getAllProducts(req, res, next) {
         try {
-            const products = await Product.find();
+            const products = await Product.find()
+                .populate({
+                    path: 'category',
+                    select: 'name description _id'
+                  })
+                .populate({
+                    path: 'seller',
+                    select: 'username email'
+                  })
+                .exec()
             res.json(products);
         } catch (e) {
             next(e);
@@ -24,9 +33,9 @@ export class productController {
 
     static async createProduct(req, res, next) {
         try {
-            const nProduct={
+            const nProduct = {
                 ...req.body,
-                seller:req.user.userId
+                seller: req.user._id
             }
             const product = new Product(nProduct);
             const newProduct = await product.save();

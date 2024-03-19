@@ -16,6 +16,7 @@ import * as path from 'path'
 import reviewRouter from './Routers/reviewRouter';
 import  transactionRouter  from './Routers/transactionRouter';
 import appRouter from './Routers/appRouter';
+import featuresRouter from './Routers/featuresRouter';
 
 export class Server {
     app: express.Application = express();
@@ -88,6 +89,7 @@ export class Server {
         this.app.use('/', appRouter);
         this.app.use('/api/v1/users', userRouter);
         this.app.use('/api/v1/categories', categoryRouter);
+        this.app.use('/api/v1/features', featuresRouter);
         this.app.use('/api/v1/cart', cartRouter);
         this.app.use('/api/v1/products', productRouter);
         this.app.use('/api/v1/orders', orderRouter);

@@ -15,7 +15,16 @@ class productController {
     static getAllProducts(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const products = yield product_1.default.find();
+                const products = yield product_1.default.find()
+                    .populate({
+                    path: 'category',
+                    select: 'name description _id'
+                })
+                    .populate({
+                    path: 'seller',
+                    select: 'username email'
+                })
+                    .exec();
                 res.json(products);
             }
             catch (e) {
@@ -40,7 +49,7 @@ class productController {
     static createProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const nProduct = Object.assign(Object.assign({}, req.body), { seller: req.user.userId });
+                const nProduct = Object.assign(Object.assign({}, req.body), { seller: req.user._id });
                 const product = new product_1.default(nProduct);
                 const newProduct = yield product.save();
                 res.status(201).json(newProduct);

@@ -24,6 +24,7 @@ const path = require("path");
 const reviewRouter_1 = require("./Routers/reviewRouter");
 const transactionRouter_1 = require("./Routers/transactionRouter");
 const appRouter_1 = require("./Routers/appRouter");
+const featuresRouter_1 = require("./Routers/featuresRouter");
 class Server {
     constructor() {
         this.app = express();
@@ -90,6 +91,7 @@ class Server {
         this.app.use('/', appRouter_1.default);
         this.app.use('/api/v1/users', userRouter_1.default);
         this.app.use('/api/v1/categories', categoryRouter_1.default);
+        this.app.use('/api/v1/features', featuresRouter_1.default);
         this.app.use('/api/v1/cart', cartRouter_1.default);
         this.app.use('/api/v1/products', productRouter_1.default);
         this.app.use('/api/v1/orders', orderRouter_1.default);
