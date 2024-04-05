@@ -16,6 +16,7 @@ export class productRouter {
     getRouter() {
         this.router.get('/', productController.getAllProducts)
         this.router.get('/:id', productController.getProductsById)
+        this.router.get('/topdeals',productController.topProduct)
 
 
     }

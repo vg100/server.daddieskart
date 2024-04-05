@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import * as Jwt from 'jsonwebtoken';
+import { getEnvironmentVariables } from '../environments/env';
 export class GlobalMiddleWare {
     static checkError(req, res, next) {
         const error = validationResult(req);
@@ -32,22 +33,25 @@ export class GlobalMiddleWare {
 
     static authMiddleware = (allowedRoles) => {
         return (req, res, next) => {
-            const token = req.headers.authorization;
-
-            if (!token) {
-                return res.status(401).json({ message: 'No token provided' });
+            const authHeader = req.headers.authorization;
+            const token = authHeader ? authHeader : null;
+            try {
+                Jwt.verify(token, getEnvironmentVariables().jwt_secret, (err, decoded) => {
+                    if (err) {
+                        next(err)
+                    }
+                    if (allowedRoles.includes(decoded.role)) {
+                        req.user = decoded;
+                        next();
+                    } else {
+                        req.errorStatus = 401;
+                        next(new Error('User Not Authorised'))
+                    }
+                });
+            } catch (e) {
+                req.errorStatus = 401;
+                next(e);
             }
-            Jwt.verify(token, 'secret', (err, decoded) => {
-                if (err) {
-                    return res.status(401).json({ message: 'Invalid token' });
-                }
-                if (allowedRoles.includes(decoded.role)) {
-                    req.user = decoded;
-                    next();
-                } else {
-                    return res.status(403).json({ message: 'Unauthorized' });
-                }
-            });
         };
     };
 }

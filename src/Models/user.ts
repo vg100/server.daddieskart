@@ -1,28 +1,26 @@
 
 const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
-  username: {
+  mobile: {
     type: String,
     required: true,
-    unique: true,
-    trim: true
   },
   email: {
     type: String,
-    required: true,
     unique: true,
     lowercase: true,
     trim: true
   },
   password: {
     type: String,
-    required: true
   },
   role: {
     type: String,
     enum: ['admin', 'seller', 'buyer'],
     default: 'buyer'
   },
+  verified: {type: Boolean, required: true, default: false},
+  verification_token: {type: Number, required: true},
   Permissions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Features',
@@ -36,6 +34,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+
 });
 
 export default mongoose.model('User', userSchema);

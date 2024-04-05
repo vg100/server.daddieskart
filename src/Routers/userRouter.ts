@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { customerValidators } from '../Validators/customerValidators'
+import { userValidators } from '../Validators/userValidators'
 import { GlobalMiddleWare } from '../GlobalMiddleWare/GlobalMiddleWare';
 import { userController } from '../Controllers/userController';
 import { validate } from '../Validators/joiValid/validate'
@@ -19,12 +19,13 @@ export class customerRouter {
     }
     postRouter() {
 
-        this.router.post('/register', userController.register)
-        this.router.post('/login', userController.login)
+        this.router.post('/register',userValidators.register(), GlobalMiddleWare.checkError, userController.register)
+        this.router.post('/login', userValidators.login(), GlobalMiddleWare.checkError, userController.login)
 
     }
     patchRouter() {
         this.router.patch('/profile', GlobalMiddleWare.authMiddleware(["seller","buyer"]), userController.upadteUserProfile)
+        this.router.patch('/verify', GlobalMiddleWare.checkError,userController.verify);
     }
     deleteRouter() {
         this.router.delete('/profile', GlobalMiddleWare.authMiddleware(["seller","buyer"]), userController.deleteUserProfile)

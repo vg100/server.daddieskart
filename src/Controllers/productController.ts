@@ -1,4 +1,5 @@
 import Product from "../Models/product";
+// import { topDealsProducts } from "../e-commerce/products";
 
 export class productController {
     static async getAllProducts(req, res, next) {
@@ -7,11 +8,11 @@ export class productController {
                 .populate({
                     path: 'category',
                     select: 'name description _id'
-                  })
+                })
                 .populate({
                     path: 'seller',
                     select: 'username email'
-                  })
+                })
                 .exec()
             res.json(products);
         } catch (e) {
@@ -71,4 +72,15 @@ export class productController {
             next(e);
         }
     }
+    static async topProduct(req, res, next) {
+        try {
+            // const product = topDealsProducts
+            res.json({ topDealsProducts: [] });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+
+
 }

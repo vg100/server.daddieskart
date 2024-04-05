@@ -2,10 +2,10 @@ import { body,query } from "express-validator";
 import User from "../Models/user";
 
 
-export class customerValidators{
+export class userValidators{
    static register(){
-        return [body('email', 'Email is Required').isEmail().custom((email, {req}) => {
-            return User.findOne({email: email}).then(user => {
+        return [body('mobile', 'Mobile Number is Required').custom((mobile, {req}) => {
+            return User.findOne({mobile: mobile}).then(user => {
                 if (user) {
                     throw new Error('User Already Exist');
                 } else {
@@ -13,21 +13,21 @@ export class customerValidators{
                 }
             })
         }),
-            body('password', 'Password is Required').isAlphanumeric()
                 
            ];
     }
     static login() {
-        return [query('email', 'Email is Required').isEmail()
-            .custom((email, {req}) => {
-                return User.findOne({email: email}).then(customer => {
+        return [body('mobile', 'Mobile Number is Required')
+            .custom((mobile, {req}) => {
+                console.log(mobile)
+                return User.findOne({mobile: mobile}).then(customer => {
                     if (customer) {
-                        req.customer = customer;
+                        req.user = customer;
                         return true;
                     } else {
                         throw  new Error('User Does Not Exist');
                     }
                 });
-            }), query('password', 'Password is Required').isAlphanumeric()]
+            })]
     }
 }

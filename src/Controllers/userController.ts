@@ -2,77 +2,87 @@
 import User from '../Models/user'
 import * as bcrypt from 'bcrypt'
 import * as Jwt from 'jsonwebtoken';
+import twilioServices from '../Utils/twilioServices';
+import { Utils } from '../Utils/utils';
+import awsServices from '../Utils/awsServices';
 
 export class userController {
+    static otp = ""
+    static updateOTP(newOTP) {
+        this.otp = newOTP;
+    }
     static async register(req, res, next) {
         try {
-            const existingUser = await User.findOne({ email: req.body.email });
+            const existingUser = await User.findOne({ mobile: req.body.mobile });
+            const verificationToken = Utils.generateVerificationToken();
             if (existingUser) {
-                return res.status(400).json({ message: 'Email already registered' });
+
+                await twilioServices.sendSMS({
+                    to: existingUser.mobile,
+                    body: verificationToken
+                })
+                res.status(201).json({ status: true });
+                return
             }
 
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            // const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            // Create a new user
+            // const newUser = new User({
+            //     username: req.body.username,
+            //     email: req.body.email,
+            //     password: hashedPassword,
+            //     role: req.body.role || 'buyer',
+            //     profileImage: req.body.profileImage,
+            //     contactInfo: req.body.contactInfo
+            // });
+
             const newUser = new User({
-                username: req.body.username,
-                email: req.body.email,
-                password: hashedPassword,
-                role: req.body.role || 'buyer', // Set default role if not provided
-                profileImage: req.body.profileImage,
-                contactInfo: req.body.contactInfo
+                mobile: req.body.mobile,
+                verification_token: verificationToken,
+                role: req.body.role || 'buyer',
+
             });
 
-            // Save the user to the database
             await newUser.save();
+            res.status(201).json({ status: true });
+            await twilioServices.sendSMS({
+                to: req.body.mobile,
+                body: verificationToken
+            })
+  
 
-            res.status(201).json({ message: 'User registered successfully' });
         } catch (e) {
             next(e);
-
         }
-
-
-
     }
 
     static async login(req, res, next) {
+        const user = req.user;
         try {
-            const user = await User.findOne({ email: req.body.email });
-            if (!user) {
-                return res.status(400).json({ message: 'Invalid email or password' });
-            }
-
-            const passwordMatch = await bcrypt.compare(req.body.password, user.password);
-            if (!passwordMatch) {
-                return res.status(400).json({ message: 'Invalid email or password' });
-            }
-
+            // const verificationToken = Utils.generateVerificationToken();
+            // await twilioServices.sendSMS({
+            //     to: req.body.mobile,
+            //     body: verificationToken
+            // })
+            // this.updateOTP(verificationToken)
+            // res.status(201).json({ status: true });
             const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
-
             res.json({ token });
-
         } catch (e) {
             next(e);
-
         }
-
-
-
     }
 
     static async getAllUser(req, res, next) {
         try {
-            const users = await User.find();
+            const users = await User.find().populate({
+                path: 'Permissions',
+                select: 'name price'
+            })
             res.json(users);
         } catch (e) {
             next(e);
-
         }
-
-
-
     }
 
     static async getUserProfile(req, res, next) {
@@ -83,9 +93,6 @@ export class userController {
             next(e);
 
         }
-
-
-
     }
 
     static async upadteUserProfile(req, res, next) {
@@ -116,4 +123,45 @@ export class userController {
 
 
     }
+
+    static async verify(req, res, next) {
+        const verificationToken = req.body.verification_token;
+        const mobile = req.body.mobile;
+        try {
+            const user = await User.findOneAndUpdate({
+                mobile: mobile,
+                verification_token: verificationToken
+            }, { verified: true, updated_at: new Date() }, { new: true });
+            if (user) {
+                const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
+                res.json({ token });
+            } else {
+                throw new Error('Verification Token Is Expired.Please Request For a new One');
+            }
+        } catch (e) {
+            next(e);
+        }
+    }
+    static async resendVerificationOtp(req, res, next) {
+        const mobile = req.user.mobile;
+        const verificationToken = Utils.generateVerificationToken();
+        try {
+            const user: any = await User.findOneAndUpdate({ mobile: mobile }, {
+                verification_token: verificationToken,
+            });
+            if (user) {
+                await twilioServices.sendSMS({
+                    to: "+919555504027",
+                    body: verificationToken
+                })
+                res.json({ success: true })
+            } else {
+                throw new Error('User Does Not Exist');
+            }
+        } catch (e) {
+            next(e);
+        }
+    }
+
 }
+

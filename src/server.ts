@@ -8,15 +8,14 @@ import categoryRouter from './Routers/categoryRouter';
 import * as cors from 'cors';
 import * as morgan from 'morgan'
 import * as bodyParser from 'body-parser'
-
-
 import cartRouter from './Routers/cartRouter';
-
 import * as path from 'path'
 import reviewRouter from './Routers/reviewRouter';
 import  transactionRouter  from './Routers/transactionRouter';
 import appRouter from './Routers/appRouter';
 import featuresRouter from './Routers/featuresRouter';
+import { getEnvironmentVariables } from './environments/env';
+import awsServices, * as S3Service from './Utils/awsServices';
 
 export class Server {
     app: express.Application = express();
@@ -31,9 +30,8 @@ export class Server {
         // this.connectsqlDB();
         this.connectMongoDB();
         // this.handlebarsTemplate();
-        // this.setSession();
-        // this.connectToFlash();
         this.enableCors();
+        this.connectToS3Bucket()
     }
     connectsqlDB() {
         mysql.createConnection({
@@ -47,26 +45,40 @@ export class Server {
 
     }
 
+    async  connectToS3Bucket(){
+         awsServices.checkConnection((err, isConnected) => {
+            if (err) {
+              console.error("Error:", err);
+            } else {
+              if (isConnected) {
+                console.log("Connected to S3.");
+              } else {
+                console.log("Failed to connect to S3.");
+              }
+            }
+          })
+    }
+
     async connectMongoDB() {
 
         try {
-            const uri = "mongodb+srv://vg100:vg100@cluster0.bszog.mongodb.net/test";
+            const uri = getEnvironmentVariables().db_url;
             mongoose.connect(uri, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });
             console.log("You successfully connected to MongoDB!");
-        } finally {
-            //   await client.close();
+        } catch (error) {
+            console.log(error,'error');
         }
 
     }
-    //get data in json format from the user
+
     configureBodyParser() {
         this.app.use(bodyParser.urlencoded({ extended: true }))
         this.app.use(bodyParser.json())
         this.app.use(express.json())
-        // this.app.use(morgan('tiny'))
+        this.app.use(morgan('tiny'))
     }
 
     enableCors() {
