@@ -10,7 +10,7 @@ class appRouter {
     getRouter() {
         this.router.get('/', (req, res, next) => {
             res.send({
-                appName: "the factory",
+                appName: "daddieskart.com",
                 status: "UP"
             });
         });

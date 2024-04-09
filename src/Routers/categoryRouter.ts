@@ -2,6 +2,7 @@ import {Router} from 'express'
 
 import { GlobalMiddleWare } from '../GlobalMiddleWare/GlobalMiddleWare';
 import { categoryController } from '../Controllers/categoryController';
+import { Utils } from '../Utils/utils';
 export class categoryRouter{
      router:Router;
     constructor(){
@@ -19,7 +20,7 @@ export class categoryRouter{
     }
     postRouter(){
      
-        this.router.post('/',GlobalMiddleWare.authMiddleware(["admin"]),categoryController.createCategory);
+        this.router.post('/',GlobalMiddleWare.authMiddleware(["admin"]),new Utils().multer.single('category-thumbnail'),categoryController.createCategory);
       
     }
     patchRouter(){

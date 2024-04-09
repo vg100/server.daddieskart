@@ -18,6 +18,7 @@ const userRouter_1 = require("./Routers/userRouter");
 const orderRouter_1 = require("./Routers/orderRouter");
 const categoryRouter_1 = require("./Routers/categoryRouter");
 const cors = require("cors");
+const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cartRouter_1 = require("./Routers/cartRouter");
 const path = require("path");
@@ -25,6 +26,9 @@ const reviewRouter_1 = require("./Routers/reviewRouter");
 const transactionRouter_1 = require("./Routers/transactionRouter");
 const appRouter_1 = require("./Routers/appRouter");
 const featuresRouter_1 = require("./Routers/featuresRouter");
+const awsServices_1 = require("./Utils/awsServices");
+const storeRouter_1 = require("./Routers/storeRouter");
+require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 class Server {
     constructor() {
         this.app = express();
@@ -38,9 +42,8 @@ class Server {
         // this.connectsqlDB();
         this.connectMongoDB();
         // this.handlebarsTemplate();
-        // this.setSession();
-        // this.connectToFlash();
         this.enableCors();
+        this.connectToS3Bucket();
     }
     connectsqlDB() {
         mysql.createConnection({
@@ -49,6 +52,11 @@ class Server {
             password: 'root',
         }).connect((err) => {
             console.log('mysql connected successfully', err);
+        });
+    }
+    connectToS3Bucket() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield awsServices_1.default.checkConnection();
         });
     }
     connectMongoDB() {
@@ -61,17 +69,16 @@ class Server {
                 });
                 console.log("You successfully connected to MongoDB!");
             }
-            finally {
-                //   await client.close();
+            catch (error) {
+                console.log(error, 'error');
             }
         });
     }
-    //get data in json format from the user
     configureBodyParser() {
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(bodyParser.json());
         this.app.use(express.json());
-        // this.app.use(morgan('tiny'))
+        this.app.use(morgan('tiny'));
     }
     enableCors() {
         this.app.use(cors({
@@ -95,6 +102,7 @@ class Server {
         this.app.use('/api/v1/cart', cartRouter_1.default);
         this.app.use('/api/v1/products', productRouter_1.default);
         this.app.use('/api/v1/orders', orderRouter_1.default);
+        this.app.use('/api/v1/stores', storeRouter_1.default);
         this.app.use('/api/v1/reviews', reviewRouter_1.default);
         this.app.use('/api/v1/transaction', transactionRouter_1.default);
     }

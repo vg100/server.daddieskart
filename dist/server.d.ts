@@ -4,6 +4,7 @@ export declare class Server {
     constructor();
     setConfiguration(): void;
     connectsqlDB(): void;
+    connectToS3Bucket(): Promise<void>;
     connectMongoDB(): Promise<void>;
     configureBodyParser(): void;
     enableCors(): void;

@@ -15,9 +15,10 @@ class productRouter {
     getRouter() {
         this.router.get('/', productController_1.productController.getAllProducts);
         this.router.get('/:id', productController_1.productController.getProductsById);
+        this.router.get('/topdeals', productController_1.productController.topProduct);
     }
     postRouter() {
-        this.router.post('/', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['seller']), productController_1.productController.createProduct);
+        this.router.post('/', productController_1.productController.createProduct);
     }
     patchRouter() {
         this.router.patch('/:id', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['seller']), productController_1.productController.updateProduct);

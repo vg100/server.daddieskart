@@ -16,7 +16,8 @@ import appRouter from './Routers/appRouter';
 import featuresRouter from './Routers/featuresRouter';
 import { getEnvironmentVariables } from './environments/env';
 import awsServices, * as S3Service from './Utils/awsServices';
-
+import storeRouter from './Routers/storeRouter';
+require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 export class Server {
     app: express.Application = express();
     constructor() {
@@ -46,23 +47,13 @@ export class Server {
     }
 
     async  connectToS3Bucket(){
-         awsServices.checkConnection((err, isConnected) => {
-            if (err) {
-              console.error("Error:", err);
-            } else {
-              if (isConnected) {
-                console.log("Connected to S3.");
-              } else {
-                console.log("Failed to connect to S3.");
-              }
-            }
-          })
+       await awsServices.checkConnection()
     }
 
     async connectMongoDB() {
 
         try {
-            const uri = getEnvironmentVariables().db_url;
+            const uri = "mongodb+srv://vg100:vg100@cluster0.bszog.mongodb.net/test"
             mongoose.connect(uri, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
@@ -105,6 +96,7 @@ export class Server {
         this.app.use('/api/v1/cart', cartRouter);
         this.app.use('/api/v1/products', productRouter);
         this.app.use('/api/v1/orders', orderRouter);
+        this.app.use('/api/v1/stores', storeRouter);
         this.app.use('/api/v1/reviews', reviewRouter);
         this.app.use('/api/v1/transaction', transactionRouter);
     }

@@ -11,13 +11,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.categoryController = void 0;
 const category_1 = require("../Models/category");
+const awsServices_1 = require("../Utils/awsServices");
 class categoryController {
     static createCategory(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const category = new category_1.default(req.body);
+                const category = new category_1.default(Object.assign({}, req.body));
                 const newCategory = yield category.save();
                 res.status(201).json(newCategory);
+                return;
+                awsServices_1.default.uploadFile(req.file.path, req.file.filename, (err, data) => __awaiter(this, void 0, void 0, function* () {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    const category = new category_1.default(Object.assign(Object.assign({}, req.body), { thumbnail: data }));
+                    const newCategory = yield category.save();
+                    res.status(201).json(newCategory);
+                }));
             }
             catch (e) {
                 next(e);

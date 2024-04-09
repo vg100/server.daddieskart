@@ -11,21 +11,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productController = void 0;
 const product_1 = require("../Models/product");
+const searchFeatures_1 = require("../Utils/searchFeatures");
+// import { topDealsProducts } from "../e-commerce/products";
 class productController {
     static getAllProducts(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const products = yield product_1.default.find()
-                    .populate({
-                    path: 'category',
-                    select: 'name description _id'
-                })
-                    .populate({
-                    path: 'seller',
-                    select: 'username email'
-                })
-                    .exec();
-                res.json(products);
+                const perPage = 9;
+                const currentPage = parseInt(req.query.page) || 1;
+                const searchFeatures = new searchFeatures_1.default(product_1.default.find(), req.query);
+                searchFeatures
+                    .search()
+                    .filter()
+                    .pagination(perPage);
+                const results = yield searchFeatures.query.exec();
+                const populateOptions = [
+                    { path: 'category', select: 'name description _id' },
+                    { path: 'seller', select: 'username email' }
+                ];
+                yield product_1.default.populate(results, populateOptions);
+                const totalProducts = yield product_1.default.countDocuments(searchFeatures.query.getQuery());
+                const totalPages = Math.ceil(totalProducts / perPage);
+                const hasNextPage = currentPage < totalPages;
+                res.json({
+                    product: results,
+                    totalPages,
+                    currentPage,
+                    hasNextPage
+                });
             }
             catch (e) {
                 next(e);
@@ -49,7 +62,7 @@ class productController {
     static createProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const nProduct = Object.assign(Object.assign({}, req.body), { seller: req.user._id });
+                const nProduct = Object.assign(Object.assign({}, req.body), { seller: "65f6ff277a771d4cca1c8acd" });
                 const product = new product_1.default(nProduct);
                 const newProduct = yield product.save();
                 res.status(201).json(newProduct);
@@ -84,6 +97,17 @@ class productController {
                 }
                 yield product.remove();
                 res.json({ message: 'Product deleted' });
+            }
+            catch (e) {
+                next(e);
+            }
+        });
+    }
+    static topProduct(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const product = topDealsProducts
+                res.json({ topDealsProducts: [] });
             }
             catch (e) {
                 next(e);

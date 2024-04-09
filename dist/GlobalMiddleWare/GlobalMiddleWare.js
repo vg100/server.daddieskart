@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GlobalMiddleWare = void 0;
 const express_validator_1 = require("express-validator");
 const Jwt = require("jsonwebtoken");
+const env_1 = require("../environments/env");
 class GlobalMiddleWare {
     static checkError(req, res, next) {
         const error = express_validator_1.validationResult(req);
@@ -51,21 +52,26 @@ class GlobalMiddleWare {
 exports.GlobalMiddleWare = GlobalMiddleWare;
 GlobalMiddleWare.authMiddleware = (allowedRoles) => {
     return (req, res, next) => {
-        const token = req.headers.authorization;
-        if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
+        const authHeader = req.headers.authorization;
+        const token = authHeader ? authHeader : null;
+        try {
+            Jwt.verify(token, env_1.getEnvironmentVariables().jwt_secret, (err, decoded) => {
+                if (err) {
+                    next(err);
+                }
+                if (allowedRoles.includes(decoded.role)) {
+                    req.user = decoded;
+                    next();
+                }
+                else {
+                    req.errorStatus = 401;
+                    next(new Error('User Not Authorised'));
+                }
+            });
         }
-        Jwt.verify(token, 'secret', (err, decoded) => {
-            if (err) {
-                return res.status(401).json({ message: 'Invalid token' });
-            }
-            if (allowedRoles.includes(decoded.role)) {
-                req.user = decoded;
-                next();
-            }
-            else {
-                return res.status(403).json({ message: 'Unauthorized' });
-            }
-        });
+        catch (e) {
+            req.errorStatus = 401;
+            next(e);
+        }
     };
 };

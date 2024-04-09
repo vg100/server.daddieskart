@@ -6,35 +6,36 @@ class awsService {
   bucketName: any;
   constructor() {
     this.s3 = new AWS.S3({
-      accessKeyId: "ab7786ad6",
-      secretAccessKey: "ab7786ad6"
+      accessKeyId: "AKIA2VS75GKWZ5PM5P7R",
+      secretAccessKey: "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",
+      region:'ap-south-1',
     });
-    this.bucketName = "bucketName";
+    this.bucketName = "product.daddieskart";
   }
 
-  async checkConnection(callback) {
+  async checkConnection() {
     try {
       const params = { Bucket: this.bucketName };
       await this.s3.listObjectsV2(params).promise();
-      callback(null, true); // Connection is successful
+      console.log('connected to S3')
     } catch (error) {
-      console.error("Error connecting to S3:", error);
-      callback(error, false); // Connection failed
+      throw new Error(error);
     }
   }
 
-  uploadFile(filePath, key, callback) {
-    const fileStream = fs.createReadStream(filePath);
+  uploadFile(filePath, key,callback) {
+    try {
+      const fileStream = fs.createReadStream(filePath);
 
-    const uploadParams = {
-      Bucket: this.bucketName,
-      Key: key,
-      Body: fileStream,
-      ACL: 'public-read'
-    };
+      const uploadParams = {
+        Bucket: this.bucketName,
+        Key: key,
+        Body: fileStream,
+      };
 
     this.s3.upload(uploadParams, (err, data) => {
       if (err) {
+
         console.error("Error uploading file to S3:", err);
         callback(err, null);
       } else {
@@ -42,6 +43,12 @@ class awsService {
         callback(null, data.Location);
       }
     });
+    } catch (error) {
+       console.log(error)
+    }
+
+   
+
   }
 
   deleteFile(key, callback) {

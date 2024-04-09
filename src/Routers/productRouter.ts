@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { productController } from "../Controllers/productController";
 import { GlobalMiddleWare } from "../GlobalMiddleWare/GlobalMiddleWare";
+import { Utils } from "../Utils/utils";
 
 
 export class productRouter {
@@ -21,7 +22,7 @@ export class productRouter {
 
     }
     postRouter() {
-        this.router.post('/', GlobalMiddleWare.authMiddleware(['seller']), productController.createProduct)
+        this.router.post('/', productController.createProduct)
     }
 
     patchRouter() {

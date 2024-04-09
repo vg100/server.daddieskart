@@ -1,25 +1,41 @@
 import Product from "../Models/product";
+import SearchFeatures from "../Utils/searchFeatures";
 // import { topDealsProducts } from "../e-commerce/products";
 
 export class productController {
     static async getAllProducts(req, res, next) {
         try {
-            const products = await Product.find()
-                .populate({
-                    path: 'category',
-                    select: 'name description _id'
-                })
-                .populate({
-                    path: 'seller',
-                    select: 'username email'
-                })
-                .exec()
-            res.json(products);
-        } catch (e) {
+       
+            const perPage: number = 9;
+            const currentPage: number = parseInt(req.query.page) || 1;
+            const searchFeatures = new SearchFeatures(Product.find(), req.query);
+    
+            searchFeatures
+                .search()
+                .filter()
+                .pagination(perPage);
+    
+            const results = await searchFeatures.query.exec();
+    
+            const populateOptions = [
+                { path: 'category', select: 'name description _id' },
+                { path: 'seller', select: 'username email' }
+            ];
+    
+            await Product.populate(results, populateOptions);
+            const totalProducts = await Product.countDocuments(searchFeatures.query.getQuery());
+            const totalPages = Math.ceil(totalProducts / perPage);
+            const hasNextPage = currentPage < totalPages;
+
+            res.json({
+                product: results,
+                totalPages,
+                currentPage,
+                hasNextPage
+            }); } catch (e) {
             next(e);
         }
     }
-
     static async getProductsById(req, res, next) {
         try {
             const product = await Product.findById(req.params.id);
@@ -36,7 +52,7 @@ export class productController {
         try {
             const nProduct = {
                 ...req.body,
-                seller: req.user._id
+                seller: "65f6ff277a771d4cca1c8acd"
             }
             const product = new Product(nProduct);
             const newProduct = await product.save();
