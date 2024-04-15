@@ -27,7 +27,7 @@ class productController {
                 const results = yield searchFeatures.query.exec();
                 const populateOptions = [
                     { path: 'category', select: 'name description _id' },
-                    { path: 'seller', select: 'username email' }
+                    { path: 'seller', select: 'store' }
                 ];
                 yield product_1.default.populate(results, populateOptions);
                 const totalProducts = yield product_1.default.countDocuments(searchFeatures.query.getQuery());
@@ -48,7 +48,11 @@ class productController {
     static getProductsById(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const product = yield product_1.default.findById(req.params.id);
+                const product = yield product_1.default.findById(req.params.id)
+                    .populate({
+                    path: 'seller',
+                    select: 'store _id'
+                });
                 if (!product) {
                     return res.status(404).json({ message: 'Product not found' });
                 }
@@ -106,8 +110,40 @@ class productController {
     static topProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const product = topDealsProducts
+                const product = yield product_1.default.find({ category: req.params.categoryId });
                 res.json({ topDealsProducts: [] });
+            }
+            catch (e) {
+                next(e);
+            }
+        });
+    }
+    static getProductsByCategoryId(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const product = yield product_1.default.find({ category: req.params.categoryId });
+                res.json({
+                    product
+                });
+            }
+            catch (e) {
+                next(e);
+            }
+        });
+    }
+    static searchProducts(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { query: searchTerm } = req.query;
+                if (!searchTerm) {
+                    return res.status(400).json({ message: 'Search term is required' });
+                }
+                const products = yield product_1.default.find({
+                    $or: [
+                        { name: { $regex: searchTerm, $options: 'i' } },
+                    ]
+                });
+                res.json(products);
             }
             catch (e) {
                 next(e);

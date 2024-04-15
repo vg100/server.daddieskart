@@ -28,6 +28,7 @@ const appRouter_1 = require("./Routers/appRouter");
 const featuresRouter_1 = require("./Routers/featuresRouter");
 const awsServices_1 = require("./Utils/awsServices");
 const storeRouter_1 = require("./Routers/storeRouter");
+const sellerRouter_1 = require("./Routers/sellerRouter");
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 class Server {
     constructor() {
@@ -105,6 +106,7 @@ class Server {
         this.app.use('/api/v1/stores', storeRouter_1.default);
         this.app.use('/api/v1/reviews', reviewRouter_1.default);
         this.app.use('/api/v1/transaction', transactionRouter_1.default);
+        this.app.use('/api/v1/seller', sellerRouter_1.default);
     }
     handleErrors() {
         this.app.use((error, req, res, next) => {

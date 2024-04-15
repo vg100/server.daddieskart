@@ -14,7 +14,9 @@ class productRouter {
     }
     getRouter() {
         this.router.get('/', productController_1.productController.getAllProducts);
+        this.router.get('/search', productController_1.productController.searchProducts);
         this.router.get('/:id', productController_1.productController.getProductsById);
+        this.router.get('/:categoryId', productController_1.productController.getProductsByCategoryId);
         this.router.get('/topdeals', productController_1.productController.topProduct);
     }
     postRouter() {

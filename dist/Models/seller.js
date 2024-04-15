@@ -1,24 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require('mongoose');
-const userSchema = new mongoose.Schema({
+const sellerSchema = new mongoose.Schema({
     mobile: {
         type: String,
         required: true,
     },
-    email: {
-        type: String,
-        lowercase: true,
-    },
-    password: {
-        type: String,
+    store: {
+        name: { type: String },
+        rating: { type: Number },
+        rated: { type: Number },
+        logo: { type: String },
     },
     role: {
         type: String,
-        default: 'buyer'
+        default: 'seller'
     },
     verified: { type: Boolean, default: false },
-    verification_token: { type: Number, },
+    verification_token: { type: Number },
+    Permissions: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Features',
+        }],
     profileImage: String,
     contactInfo: {
         address: String,
@@ -29,4 +32,4 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 });
-exports.default = mongoose.model('User', userSchema);
+exports.default = mongoose.model('Seller', sellerSchema);

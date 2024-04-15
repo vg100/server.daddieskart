@@ -18,8 +18,11 @@ class SearchFeatures {
     }
     filter() {
         const queryCopy = Object.assign({}, this.queryString);
-        const removeFields = ["keyword", "page", "limit",];
+        const removeFields = ["keyword", "page", "limit"];
         removeFields.forEach(key => delete queryCopy[key]);
+        Object.keys(queryCopy).forEach(key => {
+            queryCopy[key] = { $in: queryCopy[key].split(',') };
+        });
         let queryString = JSON.stringify(queryCopy);
         queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, key => `$${key}`);
         this.query = this.query.find(JSON.parse(queryString));

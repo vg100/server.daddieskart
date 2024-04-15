@@ -21,6 +21,7 @@ class userController {
     static register(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(req.body.mobile, 'hhh');
                 const existingUser = yield user_1.default.findOne({ mobile: req.body.mobile });
                 const verificationToken = utils_1.Utils.generateVerificationToken();
                 if (existingUser) {
@@ -29,7 +30,6 @@ class userController {
                         body: verificationToken
                     });
                     res.status(201).json({ status: true });
-                    return;
                 }
                 // const hashedPassword = await bcrypt.hash(req.body.password, 10);
                 // const newUser = new User({
@@ -40,15 +40,20 @@ class userController {
                 //     profileImage: req.body.profileImage,
                 //     contactInfo: req.body.contactInfo
                 // });
+                console.log({
+                    mobile: req.body.mobile,
+                    verification_token: verificationToken,
+                    role: 'buyer',
+                });
                 const newUser = new user_1.default({
                     mobile: req.body.mobile,
                     verification_token: verificationToken,
-                    role: req.body.role || 'buyer',
+                    role: 'buyer',
                 });
                 yield newUser.save();
                 res.status(201).json({ status: true });
                 yield twilioServices_1.default.sendSMS({
-                    to: req.body.mobile,
+                    to: existingUser.mobile,
                     body: verificationToken
                 });
             }
@@ -61,6 +66,7 @@ class userController {
         return __awaiter(this, void 0, void 0, function* () {
             const user = req.user;
             try {
+                console.log(user, 'user');
                 // const verificationToken = Utils.generateVerificationToken();
                 // await twilioServices.sendSMS({
                 //     to: req.body.mobile,
