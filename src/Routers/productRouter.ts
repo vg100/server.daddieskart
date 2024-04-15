@@ -15,10 +15,13 @@ export class productRouter {
     }
 
     getRouter() {
-        this.router.get('/', productController.getAllProducts)
+        this.router.get('/',productController.getAllProducts)
+        this.router.get('/search', productController.searchProducts)
         this.router.get('/:id', productController.getProductsById)
-        this.router.get('/topdeals',productController.topProduct)
-
+        this.router.get('/:categoryId', productController.getProductsByCategoryId)
+        this.router.get('/topdeals', productController.topProduct)
+       
+       
 
     }
     postRouter() {
@@ -31,7 +34,7 @@ export class productRouter {
 
     deleteRouter() {
         this.router.delete('/:id', GlobalMiddleWare.authMiddleware(['seller']), productController.deleteProduct)
-     }
+    }
 }
 
 export default new productRouter().router

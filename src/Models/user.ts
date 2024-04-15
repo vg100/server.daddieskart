@@ -7,24 +7,17 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: true,
     lowercase: true,
-    trim: true
   },
   password: {
     type: String,
   },
   role: {
     type: String,
-    enum: ['admin', 'seller', 'buyer'],
     default: 'buyer'
   },
-  verified: {type: Boolean, required: true, default: false},
-  verification_token: {type: Number, required: true},
-  Permissions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Features',
-  }],
+  verified: {type: Boolean, default: false},
+  verification_token: {type: Number,},
   profileImage: String,
   contactInfo: {
     address: String,

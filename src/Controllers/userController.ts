@@ -13,6 +13,7 @@ export class userController {
     }
     static async register(req, res, next) {
         try {
+            console.log(req.body.mobile,'hhh')
             const existingUser = await User.findOne({ mobile: req.body.mobile });
             const verificationToken = Utils.generateVerificationToken();
             if (existingUser) {
@@ -22,7 +23,7 @@ export class userController {
                     body: verificationToken
                 })
                 res.status(201).json({ status: true });
-                return
+           
             }
 
             // const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -36,20 +37,27 @@ export class userController {
             //     contactInfo: req.body.contactInfo
             // });
 
+
+            console.log({
+                mobile: req.body.mobile,
+                verification_token: verificationToken,
+                role: 'buyer',
+
+            })
+
             const newUser = new User({
                 mobile: req.body.mobile,
                 verification_token: verificationToken,
-                role: req.body.role || 'buyer',
+                role: 'buyer',
 
             });
 
             await newUser.save();
             res.status(201).json({ status: true });
             await twilioServices.sendSMS({
-                to: req.body.mobile,
+                to: existingUser.mobile,
                 body: verificationToken
             })
-  
 
         } catch (e) {
             next(e);
@@ -59,6 +67,7 @@ export class userController {
     static async login(req, res, next) {
         const user = req.user;
         try {
+            console.log(user,'user')
             // const verificationToken = Utils.generateVerificationToken();
             // await twilioServices.sendSMS({
             //     to: req.body.mobile,

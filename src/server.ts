@@ -17,6 +17,7 @@ import featuresRouter from './Routers/featuresRouter';
 import { getEnvironmentVariables } from './environments/env';
 import awsServices, * as S3Service from './Utils/awsServices';
 import storeRouter from './Routers/storeRouter';
+import sellerRouter from './Routers/sellerRouter';
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 export class Server {
     app: express.Application = express();
@@ -99,6 +100,7 @@ export class Server {
         this.app.use('/api/v1/stores', storeRouter);
         this.app.use('/api/v1/reviews', reviewRouter);
         this.app.use('/api/v1/transaction', transactionRouter);
+        this.app.use('/api/v1/seller', sellerRouter);
     }
 
     handleErrors() {

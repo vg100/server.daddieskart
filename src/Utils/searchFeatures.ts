@@ -22,16 +22,19 @@ class SearchFeatures {
     }
 
     filter() {
-        const queryCopy: any = { ...this.queryString }
-
-        const removeFields: string[] = ["keyword", "page", "limit",];
-
+        const queryCopy: any = { ...this.queryString };
+    
+        const removeFields: string[] = ["keyword", "page", "limit"];
+    
         removeFields.forEach(key => delete queryCopy[key]);
+    
+        Object.keys(queryCopy).forEach(key => {
+            queryCopy[key] = { $in: queryCopy[key].split(',') };
+        });
     
         let queryString: string = JSON.stringify(queryCopy);
         queryString = queryString.replace(/\b(gt|gte|lt|lte)\b/g, key => `$${key}`);
-
-
+    
         this.query = this.query.find(JSON.parse(queryString));
         return this;
     }

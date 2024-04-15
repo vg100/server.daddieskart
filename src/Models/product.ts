@@ -22,6 +22,12 @@ const productSchema = new mongoose.Schema({
     type: Number,
     min: 0
   },
+  offer: {
+    type: String,
+  },
+  isOffer: {
+    type: Boolean,
+  },
   rating: {
     type: Number,
   },
@@ -35,6 +41,7 @@ const productSchema = new mongoose.Schema({
     ref: 'Review',
   }],
   inStock: { type: Boolean },
+  availability: { type: String },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
@@ -46,7 +53,7 @@ const productSchema = new mongoose.Schema({
   }],
   seller: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Seller',
   },
   createdAt: {
     type: Date,

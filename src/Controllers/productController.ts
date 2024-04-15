@@ -5,23 +5,23 @@ import SearchFeatures from "../Utils/searchFeatures";
 export class productController {
     static async getAllProducts(req, res, next) {
         try {
-       
+
             const perPage: number = 9;
             const currentPage: number = parseInt(req.query.page) || 1;
             const searchFeatures = new SearchFeatures(Product.find(), req.query);
-    
+
             searchFeatures
                 .search()
                 .filter()
                 .pagination(perPage);
-    
+
             const results = await searchFeatures.query.exec();
-    
+
             const populateOptions = [
                 { path: 'category', select: 'name description _id' },
-                { path: 'seller', select: 'username email' }
+                { path: 'seller', select: 'store' }
             ];
-    
+
             await Product.populate(results, populateOptions);
             const totalProducts = await Product.countDocuments(searchFeatures.query.getQuery());
             const totalPages = Math.ceil(totalProducts / perPage);
@@ -32,13 +32,18 @@ export class productController {
                 totalPages,
                 currentPage,
                 hasNextPage
-            }); } catch (e) {
+            });
+        } catch (e) {
             next(e);
         }
     }
     static async getProductsById(req, res, next) {
         try {
-            const product = await Product.findById(req.params.id);
+            const product = await Product.findById(req.params.id)
+                .populate({
+                    path: 'seller',
+                    select: 'store _id'
+                });
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
             }
@@ -90,13 +95,42 @@ export class productController {
     }
     static async topProduct(req, res, next) {
         try {
-            // const product = topDealsProducts
+            const product = await Product.find({ category: req.params.categoryId });
             res.json({ topDealsProducts: [] });
         } catch (e) {
             next(e);
         }
     }
 
+    static async getProductsByCategoryId(req, res, next) {
+        try {
+            const product = await Product.find({ category: req.params.categoryId });
+            res.json({
+                product
+            })
+        } catch (e) {
+            next(e);
+        }
+    }
 
+    static async searchProducts(req, res, next) {
+
+
+        try {
+            const { query: searchTerm } = req.query;
+            if (!searchTerm) {
+                return res.status(400).json({ message: 'Search term is required' });
+            }
+
+            const products = await Product.find({
+                $or: [
+                    { name: { $regex: searchTerm, $options: 'i' } },
+                ]
+            });
+            res.json(products);
+        } catch (e) {
+            next(e);
+        }
+    }
 
 }
