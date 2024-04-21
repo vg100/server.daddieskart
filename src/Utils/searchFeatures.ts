@@ -15,8 +15,6 @@ class SearchFeatures {
             }
         } : {};
 
-        // console.log(keyword);
-
         this.query = this.query.find({ ...keyword });
         return this;
     }
@@ -24,10 +22,15 @@ class SearchFeatures {
     filter() {
         const queryCopy: any = { ...this.queryString };
     
-        const removeFields: string[] = ["keyword", "page", "limit"];
+        const removeFields: string[] = ["keyword", "page", "limit","color"];
     
         removeFields.forEach(key => delete queryCopy[key]);
     
+        if (this.queryString.color) {
+            queryCopy['productColorVariants.name'] = 'Color';
+            queryCopy['productColorVariants.value'] = this.queryString.color;
+        }
+
         Object.keys(queryCopy).forEach(key => {
             queryCopy[key] = { $in: queryCopy[key].split(',') };
         });

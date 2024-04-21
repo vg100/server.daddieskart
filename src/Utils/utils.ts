@@ -8,7 +8,7 @@ const storageOptions =
             cb(null, './src/uploads/')
         },
         filename: function (req, file, cb) {
-            cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)) 
+            cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
         }
     });
 const fileFilter = (req, file, cb) => {
@@ -19,10 +19,10 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-export class Utils{
+export class Utils {
     public MAX_TOKEN_TIME = 600000;
-    public multer = Multer({storage: storageOptions, fileFilter: fileFilter});
-    
+    public multer = Multer({ storage: storageOptions, fileFilter: fileFilter });
+
     static encryptPassword(password: string): Promise<any> {
         return new Promise((resolve, reject) => {
             Bcrypt.hash(password, 10, (err, hash) => {
@@ -37,7 +37,6 @@ export class Utils{
 
     static async comparePassword(password: { plainPassword: string, encryptedPassword: string }): Promise<any> {
         return new Promise(((resolve, reject) => {
-
             Bcrypt.compare(password.plainPassword, password.encryptedPassword, ((err, isSame) => {
                 if (err) {
                     reject(err);

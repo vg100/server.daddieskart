@@ -6,23 +6,31 @@ import { Utils } from "../Utils/utils";
 export class sellerController {
     static async register(req, res, next) {
         try {
-            const existingUser = await Seller.findOne({ mobile: req.body.mobile });
-            const verificationToken = Utils.generateVerificationToken();
-            if (existingUser) {
-                await twilioServices.sendSMS({
-                    to: existingUser.mobile,
-                    body: verificationToken
-                })
-                res.status(201).json({ status: true });
-                return
-            }
+    
+
             const newUser = new Seller({
                 ...req.body,
-                verification_token: verificationToken,
             });
 
-            await newUser.save();
-            res.status(201).json({ status: true });  
+          const seller= await newUser.save();
+            await twilioServices.sendSMS({
+                    to: req.body.mobile,
+                    body: "Welcome to daddiesKart ◡̈ "
+                })
+            res.status(201).json({ status: true,seller });  
+
+
+
+            // const verificationToken = Utils.generateVerificationToken();
+            // if (existingUser) {
+            //     await twilioServices.sendSMS({
+            //         to: existingUser.mobile,
+            //         body: verificationToken
+            //     })
+            //     res.status(201).json({ status: true });
+            //     return
+            // }
+         
 
         } catch (e) {
             next(e);
@@ -30,10 +38,10 @@ export class sellerController {
     }
 
     static async login(req, res, next) {
-        const user = req.user;
+        const seller = req.seller;
         try {
-            const token = jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
-            res.json({ token });
+            const token = jwt.sign({ _id: seller._id, role: seller.role }, "secret", { expiresIn: '7d' });
+            res.json({ token ,seller});
         } catch (e) {
             next(e);
         }
@@ -43,6 +51,27 @@ export class sellerController {
         try {
             const users = await Seller.find()
             res.json(users);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    static async upadteSellerProfile(req, res, next){
+        try {
+            const users = await Seller.findByIdAndUpdate(req.params.id,req.body,{ new: true })
+            res.json(users);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    static async deleteSeller(req,res,next){
+        const seller=req.seller
+        try {
+            await Seller.findByIdAndDelete(seller?._id);
+            res.json({
+                msg:"deleted sucessfully"
+            });
         } catch (e) {
             next(e);
         }

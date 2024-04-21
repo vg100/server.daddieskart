@@ -38,10 +38,10 @@ export class GlobalMiddleWare {
             try {
                 Jwt.verify(token, getEnvironmentVariables().jwt_secret, (err, decoded) => {
                     if (err) {
-                        next(err)
+                        next(new Error('token must be provided'))
                     }
-                    if (allowedRoles.includes(decoded.role)) {
-                        req.user = decoded;
+                    if (allowedRoles.includes(decoded?.role)) {
+                        req[decoded?.role || "user"] = decoded;
                         next();
                     } else {
                         req.errorStatus = 401;

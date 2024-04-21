@@ -1,34 +1,55 @@
-
 const twilio = require('twilio');
+
 class TwilioServer {
   client: any;
   accountSid = "ACcd7fdbd7f8086bbd55dc9a8b8b44c936"
-  authToken = "c73c6b1057dabd6c26db16df9cd0f7c6"
+  authToken = "294bef2c69d4286de89fb6c9830305ee"
   twilioPhoneNumber = "+12058508306"
+  
   constructor() {
     this.client = twilio(this.accountSid, this.authToken);
   }
 
-  sendSMS(data) {
+  async sendSMS(data) {
     try {
-      const res = this.client.messages.create({
+      const res = await this.client.messages.create({
         to: data.to,
         from: this.twilioPhoneNumber,
         body: data.body
       });
-      return res
+      return res;
     } catch (error) {
-      throw new Error('Error sending SMS:');
+      throw new Error('Error sending SMS: ' + error.message);
     }
-
   }
 
-  makePhoneCall(to, from, url) {
-    return this.client.calls.create({
-      to: to,
-      from: from,
-      url: url
-    });
+  async makePhoneCall(to, from, url) {
+    try {
+      const res = await this.client.calls.create({
+        to: to,
+        from: from,
+        url: url
+      });
+      return res;
+    } catch (error) {
+      throw new Error('Error making phone call: ' + error.message);
+    }
+  }
+
+  async checkConnectivity() {
+    try {
+      // await this.sendSMS({
+      //   to: '+919140994435',
+      //   body: 'Testing Twilio connectivity.'
+      // });
+      
+      // Try making a test call
+      // await this.makePhoneCall('+1234567890', this.twilioPhoneNumber, 'http://demo.twilio.com/docs/voice.xml');
+      
+      return 'Twilio connectivity check successful.';
+    } catch (error) {
+      throw new Error('Twilio connectivity check failed: ' + error.message);
+    }
   }
 }
 

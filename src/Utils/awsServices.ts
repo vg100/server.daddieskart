@@ -17,7 +17,7 @@ class awsService {
     try {
       const params = { Bucket: this.bucketName };
       await this.s3.listObjectsV2(params).promise();
-      console.log('connected to S3')
+      console.log('successfully to connected to S3')
     } catch (error) {
       throw new Error(error);
     }

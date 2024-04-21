@@ -7,8 +7,9 @@ const reviewSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  target: {
+  productId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
     required: true
   },
   targetType: {
@@ -21,6 +22,24 @@ const reviewSchema = new mongoose.Schema({
     required: true,
     min: 1,
     max: 5
+  },
+  reply: {
+    text: {
+      type: String,
+      default: ''
+    },
+    from: {
+      type: String,
+      default: ''
+    },
+    time: {
+      type: String,
+      default: ''
+    }
+  },
+  images: {
+    type: [String],
+    default: []
   },
   reviewText: String,
   createdAt: {

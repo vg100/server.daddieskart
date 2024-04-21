@@ -2,6 +2,7 @@ import { Router } from "express";
 import { productController } from "../Controllers/productController";
 import { GlobalMiddleWare } from "../GlobalMiddleWare/GlobalMiddleWare";
 import { Utils } from "../Utils/utils";
+import { productValidator } from "../Validators/productValidator";
 
 
 export class productRouter {
@@ -25,15 +26,23 @@ export class productRouter {
 
     }
     postRouter() {
-        this.router.post('/', productController.createProduct)
+        this.router.post('/',GlobalMiddleWare.authMiddleware(['seller']),productController.createProduct)
     }
 
     patchRouter() {
-        this.router.patch('/:id', GlobalMiddleWare.authMiddleware(['seller']), productController.updateProduct)
+        this.router.patch('/:id',
+        GlobalMiddleWare.authMiddleware(['seller','admin']),
+        productValidator.checkId(),
+        GlobalMiddleWare.checkError,
+        productController.updateProduct)
     }
 
     deleteRouter() {
-        this.router.delete('/:id', GlobalMiddleWare.authMiddleware(['seller']), productController.deleteProduct)
+        this.router.delete('/:id', 
+        GlobalMiddleWare.authMiddleware(['seller','admin']),
+        productValidator.checkId(),
+        GlobalMiddleWare.checkError,
+        productController.deleteProduct)
     }
 }
 

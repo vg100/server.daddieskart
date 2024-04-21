@@ -2,7 +2,6 @@ import { Router } from 'express'
 import { userValidators } from '../Validators/userValidators'
 import { GlobalMiddleWare } from '../GlobalMiddleWare/GlobalMiddleWare';
 import { userController } from '../Controllers/userController';
-import { validate } from '../Validators/joiValid/validate'
 export class customerRouter {
     router: Router;
     constructor() {
@@ -14,8 +13,8 @@ export class customerRouter {
     }
 
     getRouter() {
-        this.router.get('/', GlobalMiddleWare.authMiddleware(["admin"]), userController.getAllUser)
-        this.router.get('/profile', GlobalMiddleWare.authMiddleware(["seller","buyer"]), userController.getUserProfile)
+        this.router.get('/', GlobalMiddleWare.authMiddleware(["admin","buyer"]),userController.getAllUser)
+        this.router.get('/profile',GlobalMiddleWare.authMiddleware(["buyer"]),userController.getUserProfile)
     }
     postRouter() {
 
@@ -24,11 +23,18 @@ export class customerRouter {
 
     }
     patchRouter() {
-        this.router.patch('/profile', GlobalMiddleWare.authMiddleware(["seller","buyer"]), userController.upadteUserProfile)
-        this.router.patch('/verify', GlobalMiddleWare.checkError,userController.verify);
+        this.router.patch('/:id',
+        GlobalMiddleWare.authMiddleware(["admin","buyer"]),
+        userValidators.checkId(),
+        GlobalMiddleWare.checkError,
+        userController.upadteUserProfile)
     }
     deleteRouter() {
-        this.router.delete('/profile', GlobalMiddleWare.authMiddleware(["seller","buyer"]), userController.deleteUserProfile)
+        this.router.delete('/:id',
+        GlobalMiddleWare.authMiddleware(["admin"]),
+        userValidators.checkId(),
+        GlobalMiddleWare.checkError,
+        userController.deleteUserProfile)
     }
 }
 

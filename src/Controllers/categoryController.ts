@@ -41,7 +41,7 @@ export class categoryController {
 
   static async getCategoryById(req, res, next) {
     try {
-      const category = await Category.findById(req.params.id);
+      const category = await Category.findById(req.category._id);
       if (!category) {
         return res.status(404).json({ message: 'Category not found' });
       }
@@ -52,21 +52,17 @@ export class categoryController {
   }
   static async upadteCategory(req, res, next) {
     try {
-      const category = await Category.findById(req.params.id);
-      if (!category) {
-        return res.status(404).json({ message: 'Category not found' });
-      }
-      Object.assign(category, req.body);
-      const updatedCategory = await category.save();
-      res.json(updatedCategory);
-    } catch (e) {
+      const users = await Category.findByIdAndUpdate(req.category._id, req.body, { new: true })
+      res.json(users);
+  } catch (e) {
       next(e);
-    }
+  }
   }
 
   static async deleteCategory(req, res, next) {
+
     try {
-      const category = await Category.findById(req.params.id);
+      const category = await Category.findById(req.category._id);
       if (!category) {
         return res.status(404).json({ message: 'Category not found' });
       }

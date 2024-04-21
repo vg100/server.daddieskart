@@ -19,7 +19,8 @@ export class productController {
 
             const populateOptions = [
                 { path: 'category', select: 'name description _id' },
-                { path: 'seller', select: 'store' }
+                { path: 'seller', select: 'store' },
+                // { path: 'productReviews', select: 'reviewText' }
             ];
 
             await Product.populate(results, populateOptions);
@@ -43,6 +44,11 @@ export class productController {
                 .populate({
                     path: 'seller',
                     select: 'store _id'
+                }) .populate({
+                    path: 'productReviews',
+                    populate: {
+                        path: 'user',
+                    }
                 });
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
@@ -54,11 +60,16 @@ export class productController {
     }
 
     static async createProduct(req, res, next) {
+        const seller=req.seller
         try {
+
+      
             const nProduct = {
                 ...req.body,
-                seller: "65f6ff277a771d4cca1c8acd"
+                seller: seller?._id
             }
+
+            console.log(nProduct)
             const product = new Product(nProduct);
             const newProduct = await product.save();
             res.status(201).json(newProduct);
@@ -87,7 +98,7 @@ export class productController {
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
             }
-            await product.remove();
+            // await product.remove();
             res.json({ message: 'Product deleted' });
         } catch (e) {
             next(e);

@@ -14,21 +14,19 @@ export class reviewRouter {
     }
 
     getRouter() {
-        this.router.get('/', GlobalMiddleWare.authMiddleware(['seller']),reviewController.getAllReview)
-        this.router.get('/target/:targetId', GlobalMiddleWare.authMiddleware(['seller']),reviewController.getReviewByTarget)
-
-
+        this.router.get('/',reviewController.getAllReview)
+        this.router.get('/target/:targetId',reviewController.getReviewByTarget)
     }
     postRouter() {
-        this.router.post('/', GlobalMiddleWare.authMiddleware(['buyer']), reviewController.createReview)
+        this.router.post('/', reviewController.createReview)
     }
 
     patchtRouter() {
-        this.router.patch('/:id', GlobalMiddleWare.authMiddleware(['buyer']), reviewController.updateReview)
+        this.router.patch('/:id',reviewController.updateReview)
     }
 
     deleteRouter() {
-        this.router.delete('/:id', GlobalMiddleWare.authMiddleware(['buyer']), reviewController.deleteReview)
+        this.router.delete('/:id', reviewController.deleteReview)
     }
 
 }

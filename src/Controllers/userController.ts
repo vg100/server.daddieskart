@@ -7,57 +7,22 @@ import { Utils } from '../Utils/utils';
 import awsServices from '../Utils/awsServices';
 
 export class userController {
-    static otp = ""
-    static updateOTP(newOTP) {
-        this.otp = newOTP;
-    }
+
     static async register(req, res, next) {
         try {
-            console.log(req.body.mobile,'hhh')
-            const existingUser = await User.findOne({ mobile: req.body.mobile });
-            const verificationToken = Utils.generateVerificationToken();
-            if (existingUser) {
-
-                await twilioServices.sendSMS({
-                    to: existingUser.mobile,
-                    body: verificationToken
-                })
-                res.status(201).json({ status: true });
-           
-            }
-
-            // const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-            // const newUser = new User({
-            //     username: req.body.username,
-            //     email: req.body.email,
-            //     password: hashedPassword,
-            //     role: req.body.role || 'buyer',
-            //     profileImage: req.body.profileImage,
-            //     contactInfo: req.body.contactInfo
-            // });
-
-
-            console.log({
-                mobile: req.body.mobile,
-                verification_token: verificationToken,
-                role: 'buyer',
-
-            })
 
             const newUser = new User({
                 mobile: req.body.mobile,
-                verification_token: verificationToken,
                 role: 'buyer',
 
             });
 
             await newUser.save();
-            res.status(201).json({ status: true });
             await twilioServices.sendSMS({
-                to: existingUser.mobile,
-                body: verificationToken
+                to: req.body.mobile,
+                body: "Welcome to daddiesKart ◡̈ "
             })
+            res.status(201).json({ status: true, newUser });
 
         } catch (e) {
             next(e);
@@ -66,28 +31,19 @@ export class userController {
 
     static async login(req, res, next) {
         const user = req.user;
+
         try {
-            console.log(user,'user')
-            // const verificationToken = Utils.generateVerificationToken();
-            // await twilioServices.sendSMS({
-            //     to: req.body.mobile,
-            //     body: verificationToken
-            // })
-            // this.updateOTP(verificationToken)
-            // res.status(201).json({ status: true });
             const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
-            res.json({ token });
+            res.json({ token, user });
         } catch (e) {
             next(e);
         }
+
     }
 
     static async getAllUser(req, res, next) {
         try {
-            const users = await User.find().populate({
-                path: 'Permissions',
-                select: 'name price'
-            })
+            const users = await User.find()
             res.json(users);
         } catch (e) {
             next(e);
@@ -106,16 +62,10 @@ export class userController {
 
     static async upadteUserProfile(req, res, next) {
         try {
-            const user = await User.findById(req.user._id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            Object.assign(user, req.body);
-            const updatedUser = await user.save();
-            res.json(updatedUser);
+            const users = await User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+            res.json(users);
         } catch (e) {
             next(e);
-
         }
 
 
@@ -123,14 +73,13 @@ export class userController {
     }
     static async deleteUserProfile(req, res, next) {
         try {
-
+            await User.findByIdAndDelete(req.params.id);
+            res.json({
+                msg: "deleted sucessfully"
+            });
         } catch (e) {
             next(e);
-
         }
-
-
-
     }
 
     static async verify(req, res, next) {

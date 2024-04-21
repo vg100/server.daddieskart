@@ -18,13 +18,30 @@ export class sellerRouter {
     }
     postRouter() {
 
-        this.router.post('/register',sellerValidators.register(), GlobalMiddleWare.checkError, sellerController.register)
-        this.router.post('/login', sellerValidators.login(), GlobalMiddleWare.checkError, sellerController.login)
+        this.router.post('/register',
+        sellerValidators.register(), 
+        GlobalMiddleWare.checkError, 
+        sellerController.register)
+        
+        this.router.post('/login', 
+        sellerValidators.login(), 
+        GlobalMiddleWare.checkError, 
+        sellerController.login)
 
     }
     patchRouter() {
+        this.router.patch('/:id',
+        GlobalMiddleWare.authMiddleware(['seller','admin']),
+        sellerValidators.update(),
+        GlobalMiddleWare.checkError,
+        sellerController.upadteSellerProfile)
     }
     deleteRouter() {
+        this.router.delete('/:id',
+        GlobalMiddleWare.authMiddleware(['admin']),
+        sellerValidators.delete(),
+        GlobalMiddleWare.checkError,
+        sellerController.deleteSeller)
      }
 }
 
