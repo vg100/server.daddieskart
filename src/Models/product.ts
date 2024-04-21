@@ -40,7 +40,7 @@ const productSchema = new Schema({
     min: 0,
     max: 5,
   },
-  productColorVariants: [{
+  productVariants: [{
     name: {
       type: String,
       required: true,
@@ -49,9 +49,6 @@ const productSchema = new Schema({
       type: Number,
       required: true,
       min: 0,
-    },
-    size: {
-      type: String,
     },
     value:{
       type: String,
@@ -86,7 +83,9 @@ const productSchema = new Schema({
     ref: 'Category',
     required: true,
   },
-  tags: [String],
+  tags: {
+    type: String,
+  },
   seller: {
     type: Schema.Types.ObjectId,
     ref: 'Seller',
@@ -107,21 +106,24 @@ const productSchema = new Schema({
       },
     }],
   }],
-  inBox: [String],
+  inBox: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-// Compound Indexes
+
 productSchema.index({ category: 1, price: -1 });
 productSchema.index({ 'productVariants.price': 1 });
 
-// Partial Index
+
 productSchema.index({ quantity: 1 }, { partialFilterExpression: { quantity: { $gt: 0 } } })
 
-// Text Index
+
 productSchema.index({ name: 'text', description: 'text', tags: 'text' }); 
 
 

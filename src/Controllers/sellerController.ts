@@ -13,10 +13,10 @@ export class sellerController {
             });
 
           const seller= await newUser.save();
-            await twilioServices.sendSMS({
-                    to: req.body.mobile,
-                    body: "Welcome to daddiesKart ◡̈ "
-                })
+            // await twilioServices.sendSMS({
+            //         to: req.body.mobile,
+            //         body: "Welcome to daddiesKart ◡̈ "
+            //     })
             res.status(201).json({ status: true,seller });  
 
 

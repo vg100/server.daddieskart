@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.productController = void 0;
 const product_1 = require("../Models/product");
 const searchFeatures_1 = require("../Utils/searchFeatures");
-// import { topDealsProducts } from "../e-commerce/products";
 class productController {
     static getAllProducts(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {

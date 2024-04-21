@@ -14,21 +14,27 @@ const express_validator_1 = require("express-validator");
 const seller_1 = require("../Models/seller");
 class sellerValidators {
     static register() {
-        return [express_validator_1.body('mobile', 'Mobile Number is Required').isNumeric()
-                .custom((mobile, { req }) => {
-                return seller_1.default.findOne({ mobile: mobile }).then(user => {
-                    if (user) {
-                        throw new Error('Seller Already Exist');
-                    }
-                    else {
-                        return true;
-                    }
-                });
-            }),
+        return [
+            express_validator_1.body('mobile', 'Mobile Number is Required').notEmpty().isNumeric(),
+            express_validator_1.body('mobile').custom((mobile, { req }) => __awaiter(this, void 0, void 0, function* () {
+                const seller = yield seller_1.default.findOne({ mobile: mobile });
+                if (seller) {
+                    throw new Error('Seller Already Exists');
+                }
+                return true;
+            })),
+            express_validator_1.body('email', 'Email is Required').notEmpty().isEmail(),
+            express_validator_1.body('sellerType', 'sellerType is Required').notEmpty(),
+            express_validator_1.body('GSTIN', 'GSTIN is Required').notEmpty(),
+            express_validator_1.body('password')
+                .notEmpty()
+                .withMessage('Password is Required')
+                .isLength({ min: 6, max: 6 })
+                .withMessage('Password must be at least 6 characters'),
         ];
     }
     static login() {
-        return [express_validator_1.body('mobile', 'Mobile Number is Required').isNumeric()
+        return [express_validator_1.body('mobile', 'Mobile Number is Required').notEmpty().isNumeric()
                 .custom((mobile, { req }) => {
                 console.log(mobile);
                 return seller_1.default.findOne({ mobile: mobile }).then(customer => {
@@ -40,7 +46,13 @@ class sellerValidators {
                         throw new Error('Seller Does Not Exist');
                     }
                 });
-            })];
+            }),
+            express_validator_1.body('password')
+                .notEmpty()
+                .withMessage('Password is Required')
+                .isLength({ min: 6, max: 8 })
+                .withMessage('Password must be at least 6 characters'),
+        ];
     }
     static delete() {
         return [express_validator_1.param('id').custom((id, { req }) => __awaiter(this, void 0, void 0, function* () {

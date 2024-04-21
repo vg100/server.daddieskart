@@ -27,8 +27,12 @@ class SearchFeatures {
         removeFields.forEach(key => delete queryCopy[key]);
     
         if (this.queryString.color) {
-            queryCopy['productColorVariants.name'] = 'Color';
-            queryCopy['productColorVariants.value'] = this.queryString.color;
+            queryCopy['productVariants.name'] = 'color';
+            queryCopy['productVariants.value'] = this.queryString.color;
+        }
+        if (this.queryString.size) {
+            queryCopy['productVariants.name'] = 'size';
+            queryCopy['productVariants.value'] = this.queryString.size;
         }
 
         Object.keys(queryCopy).forEach(key => {

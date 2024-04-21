@@ -3,7 +3,7 @@ const twilio = require('twilio');
 class TwilioServer {
   client: any;
   accountSid = "ACcd7fdbd7f8086bbd55dc9a8b8b44c936"
-  authToken = "294bef2c69d4286de89fb6c9830305ee"
+  authToken = "cee66d9dece7c298288ae77cab5a03e2"
   twilioPhoneNumber = "+12058508306"
   
   constructor() {

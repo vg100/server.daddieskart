@@ -1,6 +1,5 @@
 import Product from "../Models/product";
 import SearchFeatures from "../Utils/searchFeatures";
-// import { topDealsProducts } from "../e-commerce/products";
 
 export class productController {
     static async getAllProducts(req, res, next) {
@@ -20,7 +19,6 @@ export class productController {
             const populateOptions = [
                 { path: 'category', select: 'name description _id' },
                 { path: 'seller', select: 'store' },
-                // { path: 'productReviews', select: 'reviewText' }
             ];
 
             await Product.populate(results, populateOptions);

@@ -12,17 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sellerController = void 0;
 const jwt = require("jsonwebtoken");
 const seller_1 = require("../Models/seller");
-const twilioServices_1 = require("../Utils/twilioServices");
 class sellerController {
     static register(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const newUser = new seller_1.default(Object.assign({}, req.body));
                 const seller = yield newUser.save();
-                yield twilioServices_1.default.sendSMS({
-                    to: req.body.mobile,
-                    body: "Welcome to daddiesKart ◡̈ "
-                });
+                // await twilioServices.sendSMS({
+                //         to: req.body.mobile,
+                //         body: "Welcome to daddiesKart ◡̈ "
+                //     })
                 res.status(201).json({ status: true, seller });
                 // const verificationToken = Utils.generateVerificationToken();
                 // if (existingUser) {

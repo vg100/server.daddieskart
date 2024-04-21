@@ -2,10 +2,26 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require('mongoose');
 const sellerSchema = new mongoose.Schema({
+    name: {
+        type: String,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    sellerType: {
+        type: String,
+        required: true,
+    },
     mobile: {
         type: String,
         required: true,
     },
+    GSTIN: {
+        type: String,
+        required: true,
+    },
+    password: { type: String, required: true },
     store: {
         name: { type: String },
         rating: { type: Number },
