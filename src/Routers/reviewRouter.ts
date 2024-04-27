@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { reviewController } from "../Controllers/reviewController";
 import { GlobalMiddleWare } from "../GlobalMiddleWare/GlobalMiddleWare";
+import { Utils } from "../Utils/utils";
+import { reviewValidator } from "../Validators/reviewValidator";
 
 
 export class reviewRouter {
@@ -15,10 +17,16 @@ export class reviewRouter {
 
     getRouter() {
         this.router.get('/',reviewController.getAllReview)
+        this.router.get('/:pid/:page',reviewController.getAllReviewByProductId)
         this.router.get('/target/:targetId',reviewController.getReviewByTarget)
+      
     }
     postRouter() {
-        this.router.post('/', reviewController.createReview)
+        this.router.post('/' ,GlobalMiddleWare.authMiddleware(['buyer']), 
+        // reviewValidator.addReview(),
+        new Utils().multer.single("images") , 
+        // GlobalMiddleWare.checkError,
+        reviewController.createReview)
     }
 
     patchtRouter() {

@@ -7,4 +7,5 @@ export declare class productController {
     static topProduct(req: any, res: any, next: any): Promise<void>;
     static getProductsByCategoryId(req: any, res: any, next: any): Promise<void>;
     static searchProducts(req: any, res: any, next: any): Promise<any>;
+    static check_pincode(req: any, res: any, next: any): Promise<any>;
 }

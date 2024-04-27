@@ -3,6 +3,7 @@ declare class awsService {
     bucketName: any;
     constructor();
     checkConnection(): Promise<void>;
+    upload(file: any, callback: any): void;
     uploadFile(filePath: any, key: any, callback: any): void;
     deleteFile(key: any, callback: any): void;
 }

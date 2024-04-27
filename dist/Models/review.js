@@ -7,7 +7,7 @@ const reviewSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    productId: {
+    product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
         required: true
@@ -15,7 +15,6 @@ const reviewSchema = new mongoose.Schema({
     targetType: {
         type: String,
         enum: ['seller', 'product'],
-        required: true
     },
     rating: {
         type: Number,

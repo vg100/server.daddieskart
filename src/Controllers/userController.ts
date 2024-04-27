@@ -31,7 +31,6 @@ export class userController {
 
     static async login(req, res, next) {
         const user = req.user;
-
         try {
             const token = Jwt.sign({ _id: user._id, role: user.role }, "secret", { expiresIn: '7d' });
             res.json({ token, user });

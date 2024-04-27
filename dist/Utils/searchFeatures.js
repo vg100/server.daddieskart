@@ -17,7 +17,7 @@ class SearchFeatures {
     }
     filter() {
         const queryCopy = Object.assign({}, this.queryString);
-        const removeFields = ["keyword", "page", "limit", "color"];
+        const removeFields = ["keyword", "page", "limit", "color", "size"];
         removeFields.forEach(key => delete queryCopy[key]);
         if (this.queryString.color) {
             queryCopy['productVariants.name'] = 'color';

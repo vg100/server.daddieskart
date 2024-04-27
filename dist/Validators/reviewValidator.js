@@ -1,18 +1,13 @@
-// import {body, param} from 'express-validator';
-// // import reviewModel from "../Models/review.model";
-// import Product from '../Models/product';
-// export class reviewValidator {
-//     static addreview() {
-//         return [body('review', 'Review is Required').isString().exists(),
-//             param('productId').custom((productId, {req}) => {
-//                 return Product.findOne({_id: productId}).then((product) => {
-//                     if (product) {
-//                         req.product = product;
-//                         return true;
-//                     } else {
-//                         throw  new Error('Product Does Not Exist');
-//                     }
-//                 })
-//             })]
-//     }
-// }
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reviewValidator = void 0;
+const express_validator_1 = require("express-validator");
+class reviewValidator {
+    static addReview() {
+        return [
+            express_validator_1.body('rating').notEmpty().withMessage('Rating is required').isString().withMessage('Rating must be a string'),
+            express_validator_1.body('reviewText').notEmpty().withMessage('Review text is required').isString().withMessage('Review text must be a string'),
+        ];
+    }
+}
+exports.reviewValidator = reviewValidator;

@@ -1,21 +1,11 @@
-// import {body, param} from 'express-validator';
-// // import reviewModel from "../Models/review.model";
-// import Product from '../Models/product';
+import { body } from 'express-validator';
+import Review from '../Models/review';
 
-
-// export class reviewValidator {
-//     static addreview() {
-//         return [body('review', 'Review is Required').isString().exists(),
-//             param('productId').custom((productId, {req}) => {
-//                 return Product.findOne({_id: productId}).then((product) => {
-//                     if (product) {
-//                         req.product = product;
-                     
-//                         return true;
-//                     } else {
-//                         throw  new Error('Product Does Not Exist');
-//                     }
-//                 })
-//             })]
-//     }
-// }
+export class reviewValidator {
+    static addReview() {
+        return [
+            body('rating').notEmpty().withMessage('Rating is required').isString().withMessage('Rating must be a string'),
+            body('reviewText').notEmpty().withMessage('Review text is required').isString().withMessage('Review text must be a string'),
+        ];
+    }
+}

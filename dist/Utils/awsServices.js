@@ -32,6 +32,21 @@ class awsService {
             }
         });
     }
+    upload(file, callback) {
+        const params = {
+            Bucket: this.bucketName,
+            Key: file.originalname,
+            Body: file.buffer,
+        };
+        // Upload file to S3
+        this.s3.upload(params, (err, data) => {
+            if (err) {
+                console.error('Error uploading file to S3:', err);
+                callback(err, null);
+            }
+            callback(null, data.Location);
+        });
+    }
     uploadFile(filePath, key, callback) {
         try {
             const fileStream = fs.createReadStream(filePath);

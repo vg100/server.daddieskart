@@ -23,6 +23,26 @@ class awsService {
     }
   }
 
+ 
+
+  upload(file,callback){
+    const params = {
+      Bucket: this.bucketName,
+      Key: file.originalname, // Use the original filename as the key (you can modify this as needed)
+      Body: file.buffer, // Use the file buffer as the body of the upload request
+    };
+  
+    // Upload file to S3
+    this.s3.upload(params, (err, data) => {
+      if (err) {
+        console.error('Error uploading file to S3:', err);
+        callback(err, null);
+      }
+      callback(null, data.Location);
+
+    });
+  }
+
   uploadFile(filePath, key,callback) {
     try {
       const fileStream = fs.createReadStream(filePath);

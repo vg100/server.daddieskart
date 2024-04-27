@@ -21,7 +21,7 @@ export class productRouter {
         this.router.get('/:id', productController.getProductsById)
         this.router.get('/:categoryId', productController.getProductsByCategoryId)
         this.router.get('/topdeals', productController.topProduct)
-       
+        this.router.get('/check-pin/:pid/:pincode',productController.check_pincode)
        
 
     }
@@ -34,7 +34,8 @@ export class productRouter {
         GlobalMiddleWare.authMiddleware(['seller','admin']),
         productValidator.checkId(),
         GlobalMiddleWare.checkError,
-        productController.updateProduct)
+        productController.updateProduct
+        )
     }
 
     deleteRouter() {

@@ -41,6 +41,8 @@ const productSchema = new Schema({
         min: 0,
         max: 5,
     },
+    pincodes: [{ type: Number, default: [] }],
+    specialOfferEndTime: { type: String, default: "" },
     productVariants: [{
             name: {
                 type: String,
@@ -48,27 +50,31 @@ const productSchema = new Schema({
             },
             price: {
                 type: Number,
-                required: true,
+                min: 0,
+            },
+            salePrice: {
+                type: Number,
                 min: 0,
             },
             value: {
                 type: String,
+                required: true,
             },
-            images: [String],
+            size: [{ type: String, required: true, }],
+            images: [{ type: String, required: true, }],
             quantity: {
                 type: Number,
                 default: 0,
                 min: 0,
-            },
-            sku: {
-                type: String,
-                unique: true,
-                sparse: true,
-            },
+            }
         }],
     productReviews: [{
             type: Schema.Types.ObjectId,
             ref: 'Review',
+        }],
+    relatedProducts: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Product',
         }],
     inStock: {
         type: Boolean,
@@ -94,23 +100,19 @@ const productSchema = new Schema({
     specifications: [{
             name: {
                 type: String,
-                required: true,
             },
             details: [{
                     title: {
                         type: String,
-                        required: true,
                     },
                     value: {
                         type: String,
-                        required: true,
                     },
                 }],
         }],
-    inBox: {
-        type: String,
-        required: true,
-    },
+    inBox: [{
+            type: String,
+        }],
     createdAt: {
         type: Date,
         default: Date.now,

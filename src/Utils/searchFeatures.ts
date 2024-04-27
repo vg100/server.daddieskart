@@ -22,7 +22,7 @@ class SearchFeatures {
     filter() {
         const queryCopy: any = { ...this.queryString };
     
-        const removeFields: string[] = ["keyword", "page", "limit","color"];
+        const removeFields: string[] = ["keyword", "page", "limit","color","size"];
     
         removeFields.forEach(key => delete queryCopy[key]);
     

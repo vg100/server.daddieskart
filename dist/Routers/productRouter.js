@@ -19,6 +19,7 @@ class productRouter {
         this.router.get('/:id', productController_1.productController.getProductsById);
         this.router.get('/:categoryId', productController_1.productController.getProductsByCategoryId);
         this.router.get('/topdeals', productController_1.productController.topProduct);
+        this.router.get('/check-pin/:pid/:pincode', productController_1.productController.check_pincode);
     }
     postRouter() {
         this.router.post('/', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['seller']), productController_1.productController.createProduct);

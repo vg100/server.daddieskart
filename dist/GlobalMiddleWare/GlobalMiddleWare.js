@@ -15,9 +15,13 @@ const Jwt = require("jsonwebtoken");
 const env_1 = require("../environments/env");
 class GlobalMiddleWare {
     static checkError(req, res, next) {
-        const error = express_validator_1.validationResult(req);
-        if (!error.isEmpty()) {
-            next(new Error(error.array()[0].msg));
+        const errors = express_validator_1.validationResult(req);
+        if (!errors.isEmpty()) {
+            const errorResponse = {};
+            errors.array().forEach(error => {
+                errorResponse[error.param] = error.msg;
+            });
+            next(new Error(JSON.stringify(errorResponse)));
         }
         else {
             next();

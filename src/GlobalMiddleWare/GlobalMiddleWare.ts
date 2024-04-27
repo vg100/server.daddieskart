@@ -3,9 +3,13 @@ import * as Jwt from 'jsonwebtoken';
 import { getEnvironmentVariables } from '../environments/env';
 export class GlobalMiddleWare {
     static checkError(req, res, next) {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            next(new Error(error.array()[0].msg));
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const errorResponse = {};
+            errors.array().forEach(error => {
+                errorResponse[error.param] = error.msg;
+            });
+            next(new Error(JSON.stringify(errorResponse)));
         } else {
             next();
         }
