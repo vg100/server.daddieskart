@@ -38,7 +38,6 @@ class awsService {
             Key: file.originalname,
             Body: file.buffer,
         };
-        // Upload file to S3
         this.s3.upload(params, (err, data) => {
             if (err) {
                 console.error('Error uploading file to S3:', err);

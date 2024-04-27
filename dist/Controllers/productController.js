@@ -65,7 +65,6 @@ class productController {
                 if (!product) {
                     return res.status(404).json({ message: 'Product not found' });
                 }
-                product.specialOfferEndTime = utils_1.Utils.calculateEndTime(product.specialOfferEndTime);
                 res.json(product);
             }
             catch (e) {
@@ -77,7 +76,7 @@ class productController {
         return __awaiter(this, void 0, void 0, function* () {
             const seller = req.seller;
             try {
-                const nProduct = Object.assign(Object.assign({}, req.body), { seller: seller === null || seller === void 0 ? void 0 : seller._id, specialOfferEndTime: req.body.specialOfferEndTime || "" });
+                const nProduct = Object.assign(Object.assign({}, req.body), { seller: seller === null || seller === void 0 ? void 0 : seller._id, specialOfferEndTime: utils_1.Utils.calculateEndTime(req.body.specialOfferEndTime) });
                 const product = new product_1.default(nProduct);
                 const updatedSeller = yield seller_1.default.findByIdAndUpdate(seller === null || seller === void 0 ? void 0 : seller._id, { $push: { products: product._id } }, { new: true });
                 yield Promise.all([product.save(), updatedSeller.save()]);
@@ -91,7 +90,8 @@ class productController {
     static updateProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const product = yield product_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+                const update = Object.assign(Object.assign({}, req.body), { specialOfferEndTime: utils_1.Utils.calculateEndTime(req.body.specialOfferEndTime) });
+                const product = yield product_1.default.findByIdAndUpdate(req.params.id, update, { new: true });
                 if (!product) {
                     return res.status(404).json({ message: 'Product not found' });
                 }
@@ -183,13 +183,3 @@ class productController {
     }
 }
 exports.productController = productController;
-// ek close kariye 
-//bas yahi kr raha tha tj hello tj kesi h aap main sahi nahi hun ku kya hua tj ko kisi se baat nahi ho pa rahi hain
-//oh y bat h to phle ku ni bola m brum brum p aajata aapse milne  koi kl college hian na to dekhte hian kitna aten hain
-//acha aap challlenge kr rhi h andn ahi i like challenges kl pul p milna aap m wait krunga vha ok tj
-//boolok ok tj tj but brum rum nahi hain tj woh lani padgei are aap v bnke ku bol rhe h character m rhiye b
-//rum brum m launga ok dekhte hain ok t djekhi tj aj yeah wala banaya 
-//bas yahi hua hain tj abhi tak toh bdhiya h mst bni hha site lget jrho m unna bhai 
-//teacher ji ne bola toh mast hain phir toh h mst to mst hi bolungi
-//aur ghr pr kese hain sb tj sb ache h aapne bt ki ghr p nahi kl karunga ok
-//ab mere vale laptop pr aa jao ok tgj 
