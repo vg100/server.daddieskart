@@ -32,7 +32,7 @@ class awsService {
       Body: file.buffer, // Use the file buffer as the body of the upload request
     };
   
-    // Upload file to S3
+
     this.s3.upload(params, (err, data) => {
       if (err) {
         console.error('Error uploading file to S3:', err);
