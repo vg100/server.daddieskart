@@ -38,14 +38,17 @@ export class Server {
     }
     createLogger() {
         return createLogger({
-            level: 'info',
+            level: 'error',
             format: format.combine(
                 format.timestamp(),
+                format.errors({ stack: true }),
                 format.json()
             ),
             transports: [
-                new transports.File({ filename: 'combined.log' }),
-                // new transports.Console()
+                new transports.File({
+                    filename: 'logs/error.log',
+                    level: "error"
+                }),
             ]
         });
     }
@@ -95,6 +98,7 @@ export class Server {
         }
 
     }
+
 
     configureBodyParser() {
         this.app.use(bodyParser.urlencoded({ extended: true }))
@@ -151,8 +155,7 @@ export class Server {
         this.app.use((error: any, req: any, res: any, next: any): void => {
             let errorStatus = req.errorStatus || 500
             if (errorStatus >= 500) {
-                this.logger.error({
-                    message: 'An error occurred',
+                this.logger.error(error.message, {
                     error: error.message,
                     stack: error.stack,
                     request: {
@@ -163,7 +166,6 @@ export class Server {
                         params: req.params
                     }
                 });
-    
             }
             res.status(errorStatus).json({
                 message: error.message,

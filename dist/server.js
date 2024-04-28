@@ -48,10 +48,13 @@ class Server {
     }
     createLogger() {
         return winston_1.createLogger({
-            level: 'info',
-            format: winston_1.format.combine(winston_1.format.timestamp(), winston_1.format.json()),
+            level: 'error',
+            format: winston_1.format.combine(winston_1.format.timestamp(), winston_1.format.errors({ stack: true }), winston_1.format.json()),
             transports: [
-                new winston_1.transports.File({ filename: 'combined.log' }),
+                new winston_1.transports.File({
+                    filename: 'logs/error.log',
+                    level: "error"
+                }),
             ]
         });
     }
@@ -147,8 +150,7 @@ class Server {
         this.app.use((error, req, res, next) => {
             let errorStatus = req.errorStatus || 500;
             if (errorStatus >= 500) {
-                this.logger.error({
-                    message: 'An error occurred',
+                this.logger.error(error.message, {
                     error: error.message,
                     stack: error.stack,
                     request: {

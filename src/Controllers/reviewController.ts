@@ -1,21 +1,20 @@
 import Product from "../Models/product";
 import Review from "../Models/review";
 import awsServices from "../Utils/awsServices";
-
+const fs = require('fs');
 export class reviewController {
     static async createReview(req, res, next) {
         try {
 
             awsServices.uploadFile(req.file.path, req.file.filename, async (err, data) => {
                 if (err) {
-                    console.log(err)
-                    return
+                    console.log(err);
+                    return next(err);
                 }
                 const review = new Review({
                     ...req.body,
                     user: req.buyer._id,
-                    images:[data]
-
+                    images: [data]
                 });
                 const updatedProduct = await Product.findByIdAndUpdate(
                     req.body?.product,
@@ -23,8 +22,10 @@ export class reviewController {
                     { new: true }
                 );
                 await Promise.all([review.save(), updatedProduct.save()]);
+                fs.unlinkSync(req.file.path);
                 res.status(201).json(review);
-            })
+            });
+        
 
         } catch (e) {
             next(e);

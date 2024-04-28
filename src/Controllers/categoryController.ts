@@ -11,21 +11,6 @@ export class categoryController {
         });
         const newCategory = await category.save();
         res.status(201).json(newCategory);
-      return
-
-      // awsServices.uploadFile(req.file.path, req.file.filename, async (err, data) => {
-      //   if (err) {
-      //     console.log(err)
-      //     return
-      //   }
-      //   const category = new Category({
-      //   ...req.body,
-      //   thumbnail:data
-      //   });
-      //   const newCategory = await category.save();
-      //   res.status(201).json(newCategory);
-      // })
-
     } catch (e) {
       next(e);
     }

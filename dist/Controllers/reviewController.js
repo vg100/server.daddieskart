@@ -13,6 +13,7 @@ exports.reviewController = void 0;
 const product_1 = require("../Models/product");
 const review_1 = require("../Models/review");
 const awsServices_1 = require("../Utils/awsServices");
+const fs = require('fs');
 class reviewController {
     static createReview(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -21,11 +22,12 @@ class reviewController {
                     var _a;
                     if (err) {
                         console.log(err);
-                        return;
+                        return next(err);
                     }
                     const review = new review_1.default(Object.assign(Object.assign({}, req.body), { user: req.buyer._id, images: [data] }));
                     const updatedProduct = yield product_1.default.findByIdAndUpdate((_a = req.body) === null || _a === void 0 ? void 0 : _a.product, { $push: { productReviews: review._id } }, { new: true });
                     yield Promise.all([review.save(), updatedProduct.save()]);
+                    fs.unlinkSync(req.file.path);
                     res.status(201).json(review);
                 }));
             }
