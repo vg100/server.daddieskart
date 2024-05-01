@@ -44,7 +44,7 @@ const productSchema = new Schema({
     pincodes: [{ type: Number, default: [] }],
     specialOfferEndTime: { type: String, default: "" },
     productVariants: [{
-            name: {
+            color: {
                 type: String,
                 required: true,
             },
@@ -55,10 +55,6 @@ const productSchema = new Schema({
             salePrice: {
                 type: Number,
                 min: 0,
-            },
-            value: {
-                type: String,
-                required: true,
             },
             size: [{ type: String, required: true, }],
             images: [{ type: String, required: true, }],

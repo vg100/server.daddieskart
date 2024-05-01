@@ -67,19 +67,20 @@ export class productController {
     static async createProduct(req, res, next) {
         const seller = req.seller
         try {
-
+            const { specialOfferEndTime } = req.body;
             const nProduct = {
                 ...req.body,
                 seller: seller?._id,
-                specialOfferEndTime: Utils.calculateEndTime(req.body.specialOfferEndTime)
+                ...(specialOfferEndTime && { specialOfferEndTime: Utils.calculateEndTime(specialOfferEndTime) })
             }
-            const product = new Product(nProduct);
+           const product = new Product(nProduct);
             const updatedSeller = await Seller.findByIdAndUpdate(
                 seller?._id,
                 { $push: { products: product._id } },
                 { new: true }
             );
             await Promise.all([product.save(), updatedSeller.save()]);
+
             res.status(201).json(product);
 
         } catch (e) {
@@ -89,11 +90,11 @@ export class productController {
 
     static async updateProduct(req, res, next) {
         try {
-            const update={
+            const update = {
                 ...req.body,
-                specialOfferEndTime:Utils.calculateEndTime(req.body.specialOfferEndTime)
+                specialOfferEndTime: Utils.calculateEndTime(req.body.specialOfferEndTime)
             }
-            const product = await Product.findByIdAndUpdate(req.params.id,update, { new: true })
+            const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true })
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
             }
@@ -115,10 +116,45 @@ export class productController {
             next(e);
         }
     }
+
+
     static async topProduct(req, res, next) {
         try {
-            const product = await Product.find({ category: req.params.categoryId });
-            res.json({ topDealsProducts: [] });
+
+
+
+            // const topDealsProducts = await Product.find({
+            //     'productVariants.salePrice': { $exists: true, $lt: '$productVariants.price' },
+            // }).sort({ 'productVariants.salePrice': 1 }).limit(10);
+
+            // //Top Deals based on Percentage Discount:
+            // const topDealsProducts2 = await Product.find({
+            //     'productVariants.salePrice': { $exists: true },
+            // }).sort({ $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
+
+            // //Top Deals based on Price Difference:
+            // const topDealsProducts1 = await Product.find({
+            //     'productVariants.salePrice': { $exists: true },
+            // }).sort({ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }).limit(10);
+
+            // //Best Offers with High Ratings and Discount:
+            // const bestOfferProducts1 = await Product.find({
+            //     rating: { $gte: 4 },
+            //     'productVariants.salePrice': { $exists: true },
+            // }).sort({ rating: -1, 'productVariants.salePrice': 1 }).limit(10);
+
+            // //Best Offers with High Ratings and Maximum Discount:
+            // const bestOfferProducts2 = await Product.find({
+            //     rating: { $gte: 4 },
+            //     'productVariants.salePrice': { $exists: true },
+            // }).sort({ rating: -1, $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
+
+            // const bestOfferProducts = await Product.find({
+            //     rating: { $gte: 4 },
+            //     'productVariants.salePrice': { $exists: true },
+            //   }).sort({ rating: -1 }).limit(10);
+
+            res.send([])
         } catch (e) {
             next(e);
         }

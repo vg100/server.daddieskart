@@ -27,16 +27,19 @@ class SearchFeatures {
         removeFields.forEach(key => delete queryCopy[key]);
     
         if (this.queryString.color) {
-            queryCopy['productVariants.name'] = 'color';
-            queryCopy['productVariants.value'] = this.queryString.color;
+            queryCopy['productVariants.color'] = this.queryString.color;
         }
         if (this.queryString.size) {
-            queryCopy['productVariants.name'] = 'size';
-            queryCopy['productVariants.value'] = this.queryString.size;
+            queryCopy['productVariants.size'] = this.queryString.size;
         }
-
         Object.keys(queryCopy).forEach(key => {
-            queryCopy[key] = { $in: queryCopy[key].split(',') };
+            if (queryCopy[key].includes(',')) {
+                // If comma-separated values, convert to array
+                queryCopy[key] = { $in: queryCopy[key].split(',') };
+            } else if (!isNaN(queryCopy[key])) {
+                // If numeric value, convert to number
+                queryCopy[key] = parseFloat(queryCopy[key]);
+            }
         });
     
         let queryString: string = JSON.stringify(queryCopy);

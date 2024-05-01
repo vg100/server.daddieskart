@@ -76,7 +76,8 @@ class productController {
         return __awaiter(this, void 0, void 0, function* () {
             const seller = req.seller;
             try {
-                const nProduct = Object.assign(Object.assign({}, req.body), { seller: seller === null || seller === void 0 ? void 0 : seller._id, specialOfferEndTime: utils_1.Utils.calculateEndTime(req.body.specialOfferEndTime) });
+                const { specialOfferEndTime } = req.body;
+                const nProduct = Object.assign(Object.assign(Object.assign({}, req.body), { seller: seller === null || seller === void 0 ? void 0 : seller._id }), (specialOfferEndTime && { specialOfferEndTime: utils_1.Utils.calculateEndTime(specialOfferEndTime) }));
                 const product = new product_1.default(nProduct);
                 const updatedSeller = yield seller_1.default.findByIdAndUpdate(seller === null || seller === void 0 ? void 0 : seller._id, { $push: { products: product._id } }, { new: true });
                 yield Promise.all([product.save(), updatedSeller.save()]);
@@ -120,8 +121,32 @@ class productController {
     static topProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const product = yield product_1.default.find({ category: req.params.categoryId });
-                res.json({ topDealsProducts: [] });
+                // const topDealsProducts = await Product.find({
+                //     'productVariants.salePrice': { $exists: true, $lt: '$productVariants.price' },
+                // }).sort({ 'productVariants.salePrice': 1 }).limit(10);
+                // //Top Deals based on Percentage Discount:
+                // const topDealsProducts2 = await Product.find({
+                //     'productVariants.salePrice': { $exists: true },
+                // }).sort({ $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
+                // //Top Deals based on Price Difference:
+                // const topDealsProducts1 = await Product.find({
+                //     'productVariants.salePrice': { $exists: true },
+                // }).sort({ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }).limit(10);
+                // //Best Offers with High Ratings and Discount:
+                // const bestOfferProducts1 = await Product.find({
+                //     rating: { $gte: 4 },
+                //     'productVariants.salePrice': { $exists: true },
+                // }).sort({ rating: -1, 'productVariants.salePrice': 1 }).limit(10);
+                // //Best Offers with High Ratings and Maximum Discount:
+                // const bestOfferProducts2 = await Product.find({
+                //     rating: { $gte: 4 },
+                //     'productVariants.salePrice': { $exists: true },
+                // }).sort({ rating: -1, $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
+                // const bestOfferProducts = await Product.find({
+                //     rating: { $gte: 4 },
+                //     'productVariants.salePrice': { $exists: true },
+                //   }).sort({ rating: -1 }).limit(10);
+                res.send([]);
             }
             catch (e) {
                 next(e);

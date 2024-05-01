@@ -42,7 +42,15 @@ export class GlobalMiddleWare {
             try {
                 Jwt.verify(token, getEnvironmentVariables().jwt_secret, (err, decoded) => {
                     if (err) {
-                        next(new Error('token must be provided'))
+
+                        if (err.name === 'TokenExpiredError') {
+                            req.errorStatus = 401;
+                            return next(new Error('Token has expired'));
+                        } else {
+                            req.errorStatus = 401;
+                            return next(new Error('Token must be provided'));
+                        }
+                        
                     }
                     if (allowedRoles.includes(decoded?.role)) {
                         req[decoded?.role || "user"] = decoded;

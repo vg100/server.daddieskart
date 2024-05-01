@@ -61,7 +61,14 @@ GlobalMiddleWare.authMiddleware = (allowedRoles) => {
         try {
             Jwt.verify(token, env_1.getEnvironmentVariables().jwt_secret, (err, decoded) => {
                 if (err) {
-                    next(new Error('token must be provided'));
+                    if (err.name === 'TokenExpiredError') {
+                        req.errorStatus = 401;
+                        return next(new Error('Token has expired'));
+                    }
+                    else {
+                        req.errorStatus = 401;
+                        return next(new Error('Token must be provided'));
+                    }
                 }
                 if (allowedRoles.includes(decoded === null || decoded === void 0 ? void 0 : decoded.role)) {
                     req[(decoded === null || decoded === void 0 ? void 0 : decoded.role) || "user"] = decoded;
