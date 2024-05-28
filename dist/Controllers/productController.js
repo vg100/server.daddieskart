@@ -21,10 +21,7 @@ class productController {
                 const perPage = 12;
                 const currentPage = parseInt(req.query.page) || 1;
                 const searchFeatures = new searchFeatures_1.default(product_1.default.find(), req.query);
-                searchFeatures
-                    .search()
-                    .filter()
-                    .pagination(perPage);
+                searchFeatures.search().filter().sort().pagination(perPage);
                 const results = yield searchFeatures.query.exec();
                 const populateOptions = [
                     { path: 'category', select: 'name description _id' },
@@ -91,7 +88,8 @@ class productController {
     static updateProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const update = Object.assign(Object.assign({}, req.body), { specialOfferEndTime: utils_1.Utils.calculateEndTime(req.body.specialOfferEndTime) });
+                const { specialOfferEndTime } = req.body;
+                const update = Object.assign(Object.assign({}, req.body), (specialOfferEndTime && { specialOfferEndTime: utils_1.Utils.calculateEndTime(specialOfferEndTime) }));
                 const product = yield product_1.default.findByIdAndUpdate(req.params.id, update, { new: true });
                 if (!product) {
                     return res.status(404).json({ message: 'Product not found' });
@@ -121,6 +119,7 @@ class productController {
     static topProduct(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('ggggg');
                 // const topDealsProducts = await Product.find({
                 //     'productVariants.salePrice': { $exists: true, $lt: '$productVariants.price' },
                 // }).sort({ 'productVariants.salePrice': 1 }).limit(10);
@@ -128,9 +127,9 @@ class productController {
                 // const topDealsProducts2 = await Product.find({
                 //     'productVariants.salePrice': { $exists: true },
                 // }).sort({ $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
-                // //Top Deals based on Price Difference:
+                //Top Deals based on Price Difference:
                 // const topDealsProducts1 = await Product.find({
-                //     'productVariants.salePrice': { $exists: true },
+                //     'productVariants.salePrice': { $exists: true }
                 // }).sort({ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }).limit(10);
                 // //Best Offers with High Ratings and Discount:
                 // const bestOfferProducts1 = await Product.find({

@@ -13,13 +13,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'buyer'
     },
+    otp: { type: String, },
+    otpExpiration: Date,
     verified: { type: Boolean, default: false },
-    verification_token: { type: Number, },
     profileImage: String,
     contactInfo: {
         address: String,
         phone: String
     },
+    address: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Address',
+        }],
     createdAt: {
         type: Date,
         default: Date.now

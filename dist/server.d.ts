@@ -1,14 +1,14 @@
-/// <reference types="node" />
 import * as express from 'express';
-import * as http from 'http';
+import { PrismaClient } from '@prisma/client';
 export declare class Server {
     logger: any;
     app: express.Application;
-    server: http.Server;
-    io: any;
+    prisma: PrismaClient;
     constructor();
+    generateSwaggerDocumentation(): void;
     createLogger(): import("winston").Logger;
     setConfiguration(): void;
+    connectPrisma(): Promise<void>;
     connectsqlDB(): void;
     connectToS3Bucket(): Promise<void>;
     connectToTwilio(): Promise<void>;
@@ -16,7 +16,6 @@ export declare class Server {
     configureBodyParser(): void;
     enableCors(): void;
     handlebarsTemplate(): void;
-    configureSocketIO(): void;
     setRouter(): void;
     handleErrors(): void;
     error404Handler(): void;

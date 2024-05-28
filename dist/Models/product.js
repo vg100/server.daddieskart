@@ -89,6 +89,10 @@ const productSchema = new Schema({
     tags: {
         type: String,
     },
+    gender: {
+        type: String,
+        default: "",
+    },
     seller: {
         type: Schema.Types.ObjectId,
         ref: 'Seller',

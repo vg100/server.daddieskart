@@ -30,21 +30,42 @@ const awsServices_1 = require("./Utils/awsServices");
 const twilioServices_1 = require("./Utils/twilioServices");
 const sellerRouter_1 = require("./Routers/sellerRouter");
 const couponRouter_1 = require("./Routers/couponRouter");
-const http = require("http");
 const socketIO = require("socket.io");
 const winston_1 = require("winston");
 const adminRouter_1 = require("./Routers/adminRouter");
+const expressSwagger = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const offerRouter_1 = require("./Routers/offerRouter");
+const client_1 = require("@prisma/client");
+const web3Router_1 = require("./Routers/web3Router");
+const env_1 = require("./environments/env");
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 class Server {
     constructor() {
         this.app = express();
-        this.server = http.createServer(this.app);
-        this.io = socketIO(this.server);
+        this.prisma = new client_1.PrismaClient();
         this.logger = this.createLogger();
         this.setConfiguration();
+        this.generateSwaggerDocumentation();
         this.setRouter();
         this.error404Handler();
         this.handleErrors();
+    }
+    generateSwaggerDocumentation() {
+        const options = {
+            definition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'Your API Documentation',
+                    version: '1.0.0',
+                    description: 'API documentation for your Node.js application',
+                },
+                basePath: '/',
+            },
+            apis: ['./Routers/**/*.ts'],
+        };
+        const swaggerSpec = swaggerJsdoc(options);
+        this.app.use('/api-docs', expressSwagger.serve, expressSwagger.setup(swaggerSpec));
     }
     createLogger() {
         return winston_1.createLogger({
@@ -61,11 +82,23 @@ class Server {
     setConfiguration() {
         this.configureBodyParser();
         // this.connectsqlDB();
+        this.connectPrisma();
         this.connectMongoDB();
         // this.handlebarsTemplate();
         this.enableCors();
         this.connectToS3Bucket();
         this.connectToTwilio();
+    }
+    connectPrisma() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.prisma.$connect();
+                console.log('Prisma connected successfully!');
+            }
+            catch (error) {
+                console.error('Error connecting to Prisma:', error);
+            }
+        });
     }
     connectsqlDB() {
         mysql.createConnection({
@@ -95,7 +128,7 @@ class Server {
     connectMongoDB() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const uri = "mongodb+srv://vg100:vg100@cluster0.bszog.mongodb.net/test";
+                const uri = env_1.getEnvironmentVariables().db_url;
                 yield mongoose.connect(uri);
                 console.log("successfully connected to MongoDB!");
             }
@@ -115,7 +148,7 @@ class Server {
             allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'X-Access-Token', 'Authorization'],
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
-            origin: '*',
+            origin: ["http://localhost:5173", "http://daddieskart.com"],
             preflightContinue: false
         }));
     }
@@ -123,14 +156,6 @@ class Server {
         this.app.use(express.static(path.join(__dirname, "../public")));
         this.app.set('views', path.join(__dirname, 'views'));
         this.app.set('view engine', 'hbs');
-    }
-    configureSocketIO() {
-        this.io.on("connection", (socket) => {
-            console.log("A user connected");
-            socket.on("disconnect", () => {
-                console.log("User disconnected");
-            });
-        });
     }
     setRouter() {
         this.app.use('/', appRouter_1.default);
@@ -145,11 +170,30 @@ class Server {
         this.app.use('/api/v1/seller', sellerRouter_1.default);
         this.app.use('/api/v1/admin', adminRouter_1.default);
         this.app.use('/api/v1/coupon', couponRouter_1.default);
+        this.app.use('/api/v1/offer', offerRouter_1.default);
+        this.app.use('/api/v1/web3', web3Router_1.default);
     }
     handleErrors() {
         this.app.use((error, req, res, next) => {
             let errorStatus = req.errorStatus || 500;
-            if (errorStatus >= 500) {
+            let errorObject = {
+                message: error.message,
+                status_code: errorStatus
+            };
+            // Handling Mongoose validation errors
+            if (error instanceof mongoose.Error.ValidationError) {
+                errorStatus = 422;
+                const validationErrors = {};
+                for (const field in error.errors) {
+                    validationErrors[field] = error.errors[field].message;
+                }
+                errorObject = {
+                    message: 'Validation Error',
+                    errors: validationErrors,
+                    status_code: errorStatus
+                };
+            }
+            if (process.env.NODE_ENV === 'production' && errorStatus >= 500) {
                 this.logger.error(error.message, {
                     error: error.message,
                     stack: error.stack,
@@ -162,10 +206,8 @@ class Server {
                     }
                 });
             }
-            res.status(errorStatus).json({
-                message: error.message,
-                status_code: errorStatus
-            });
+            console.log(errorObject);
+            res.status(errorStatus).json(errorObject);
         });
     }
     error404Handler() {

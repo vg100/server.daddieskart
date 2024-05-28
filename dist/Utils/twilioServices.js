@@ -20,12 +20,13 @@ class TwilioServer {
     sendSMS(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const res = yield this.client.messages.create({
-                    to: data.to,
+                const message = yield this.client.messages.create({
+                    to: data.phone,
                     from: this.twilioPhoneNumber,
-                    body: data.body
+                    body: `Your OTP is: ${data.otp}`
                 });
-                return res;
+                console.log(`OTP sent to ${data.phone}: ${message.sid}`);
+                return message;
             }
             catch (error) {
                 throw new Error('Error sending SMS: ' + error.message);

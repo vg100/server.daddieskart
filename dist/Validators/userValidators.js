@@ -14,32 +14,23 @@ const express_validator_1 = require("express-validator");
 const user_1 = require("../Models/user");
 class userValidators {
     static register() {
-        return [express_validator_1.body('mobile', 'Mobile Number is Required').isNumeric()
-                .custom((mobile, { req }) => {
-                return user_1.default.findOne({ mobile: mobile }).then(user => {
-                    if (user) {
-                        throw new Error('User Already Exist');
-                    }
-                    else {
-                        return true;
-                    }
-                });
-            }),
+        return [
+            express_validator_1.body('mobile').notEmpty().isNumeric().withMessage('Mobile Number is Required')
         ];
     }
     static login() {
         return [express_validator_1.body('mobile', 'Mobile Number is Required').isNumeric()
-                .custom((mobile, { req }) => {
-                return user_1.default.findOne({ mobile: mobile }).then(customer => {
-                    if (customer) {
-                        req.user = customer;
-                        return true;
-                    }
-                    else {
-                        throw new Error('User Does Not Exist');
-                    }
-                });
-            })];
+                .custom((mobile, { req }) => __awaiter(this, void 0, void 0, function* () {
+                const user = yield user_1.default.findOne({ mobile: mobile });
+                if (!user) {
+                    throw new Error('User does not exist');
+                }
+                if (!user.verified) {
+                    throw new Error('please verify the otp');
+                }
+                req.user = user;
+                return true;
+            }))];
     }
     static checkId() {
         return [express_validator_1.param('id').custom((id, { req }) => __awaiter(this, void 0, void 0, function* () {

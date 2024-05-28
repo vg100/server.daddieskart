@@ -16,10 +16,15 @@ class customerRouter {
     getRouter() {
         this.router.get('/', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(["admin", "buyer"]), userController_1.userController.getAllUser);
         this.router.get('/profile', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(["buyer"]), userController_1.userController.getUserProfile);
+        this.router.get('/get-address', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['buyer']), userController_1.userController.getAddress);
     }
     postRouter() {
         this.router.post('/register', userValidators_1.userValidators.register(), GlobalMiddleWare_1.GlobalMiddleWare.checkError, userController_1.userController.register);
         this.router.post('/login', userValidators_1.userValidators.login(), GlobalMiddleWare_1.GlobalMiddleWare.checkError, userController_1.userController.login);
+        this.router.post('/sendotp', userController_1.userController.sendOtp);
+        this.router.post('/verifyotp', userController_1.userController.verifyOtp);
+        this.router.post('/add-address', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['buyer']), userController_1.userController.addAddress);
+        this.router.post('/edit-address', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(['buyer']), userController_1.userController.editAddress);
     }
     patchRouter() {
         this.router.patch('/:id', GlobalMiddleWare_1.GlobalMiddleWare.authMiddleware(["admin", "buyer"]), userValidators_1.userValidators.checkId(), GlobalMiddleWare_1.GlobalMiddleWare.checkError, userController_1.userController.upadteUserProfile);
