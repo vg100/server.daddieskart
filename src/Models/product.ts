@@ -42,7 +42,7 @@ const productSchema = new Schema({
     max: 5,
   },
   pincodes: [{ type: Number, default: [] }],
-  specialOfferEndTime: {type:String, default:""},
+  specialOfferEndTime: { type: String, default: "" },
   productVariants: [{
     color: {
       type: String,
@@ -52,7 +52,7 @@ const productSchema = new Schema({
       type: Number,
       min: 0,
     },
-    salePrice:{
+    salePrice: {
       type: Number,
       min: 0,
     },
@@ -88,6 +88,10 @@ const productSchema = new Schema({
   },
   tags: {
     type: String,
+  },
+  gender: {
+    type: String,
+    default: "",
   },
   seller: {
     type: Schema.Types.ObjectId,

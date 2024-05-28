@@ -22,20 +22,49 @@ import * as http from 'http'
 const socketIO = require("socket.io");
 import { createLogger, transports, format } from 'winston';
 import adminRouter from './Routers/adminRouter';
+import * as expressSwagger from 'swagger-ui-express';
+import * as swaggerJsdoc from 'swagger-jsdoc';
+import offerRouter from './Routers/offerRouter';
+import { PrismaClient } from '@prisma/client';
+import web3Router from './Routers/web3Router';
+import { getEnvironmentVariables } from './environments/env';
 
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 export class Server {
     logger
     app: express.Application = express();
-    server = http.createServer(this.app);
-    io = socketIO(this.server);
+    prisma: PrismaClient = new PrismaClient();
     constructor() {
         this.logger = this.createLogger();
         this.setConfiguration();
+        this.generateSwaggerDocumentation();
         this.setRouter();
         this.error404Handler();
         this.handleErrors();
+
     }
+
+    generateSwaggerDocumentation() {
+        const options = {
+            definition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'Your API Documentation',
+                    version: '1.0.0',
+                    description: 'API documentation for your Node.js application',
+                },
+                basePath: '/',
+            },
+            apis: ['./Routers/**/*.ts'], // Path to the route files
+        };
+
+        const swaggerSpec = swaggerJsdoc(options);
+        this.app.use('/api-docs', expressSwagger.serve, expressSwagger.setup(swaggerSpec));
+    }
+
+
+
+
     createLogger() {
         return createLogger({
             level: 'error',
@@ -56,12 +85,23 @@ export class Server {
     setConfiguration() {
         this.configureBodyParser();
         // this.connectsqlDB();
+        this.connectPrisma();
         this.connectMongoDB();
         // this.handlebarsTemplate();
         this.enableCors();
         this.connectToS3Bucket()
         this.connectToTwilio()
     }
+
+    async connectPrisma() {
+        try {
+            await this.prisma.$connect();
+            console.log('Prisma connected successfully!');
+        } catch (error) {
+            console.error('Error connecting to Prisma:', error);
+        }
+    }
+
     connectsqlDB() {
         mysql.createConnection({
             host: 'localhost',
@@ -90,7 +130,7 @@ export class Server {
     async connectMongoDB() {
 
         try {
-            const uri = "mongodb+srv://vg100:vg100@cluster0.bszog.mongodb.net/test"
+            const uri = getEnvironmentVariables().db_url
             await mongoose.connect(uri);
             console.log("successfully connected to MongoDB!");
         } catch (error) {
@@ -112,7 +152,7 @@ export class Server {
             allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'X-Access-Token', 'Authorization'],
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
-            origin: '*',
+            origin: ["http://localhost:5173", "http://daddieskart.com"],
             preflightContinue: false
         }));
     }
@@ -123,19 +163,9 @@ export class Server {
         this.app.set('view engine', 'hbs');
     }
 
-    configureSocketIO() {
-        this.io.on("connection", (socket) => {
-            console.log("A user connected");
-
-
-            socket.on("disconnect", () => {
-                console.log("User disconnected");
-            });
-        });
-    }
-
 
     setRouter() {
+
         this.app.use('/', appRouter);
         this.app.use('/api/v1/users', userRouter);
         this.app.use('/api/v1/categories', categoryRouter);
@@ -148,13 +178,34 @@ export class Server {
         this.app.use('/api/v1/seller', sellerRouter);
         this.app.use('/api/v1/admin', adminRouter);
         this.app.use('/api/v1/coupon', couponRouter);
+        this.app.use('/api/v1/offer', offerRouter);
+        this.app.use('/api/v1/web3', web3Router);
     }
 
 
     handleErrors() {
         this.app.use((error: any, req: any, res: any, next: any): void => {
-            let errorStatus = req.errorStatus || 500
-            if (errorStatus >= 500) {
+            let errorStatus = req.errorStatus || 500;
+            let errorObject: any = {
+                message: error.message,
+                status_code: errorStatus
+            };
+    
+            // Handling Mongoose validation errors
+            if (error instanceof mongoose.Error.ValidationError) {
+                errorStatus = 422;
+                const validationErrors = {};
+                for (const field in error.errors) {
+                    validationErrors[field] = error.errors[field].message;
+                }
+                errorObject = {
+                    message: 'Validation Error',
+                    errors: validationErrors,
+                    status_code: errorStatus
+                };
+            }
+    
+            if (process.env.NODE_ENV === 'production' && errorStatus >= 500) {
                 this.logger.error(error.message, {
                     error: error.message,
                     stack: error.stack,
@@ -167,13 +218,12 @@ export class Server {
                     }
                 });
             }
-            res.status(errorStatus).json({
-                message: error.message,
-                status_code: errorStatus
-            })
-        })
-
+    
+            console.log(errorObject);
+            res.status(errorStatus).json(errorObject);
+        });
     }
+    
 
     error404Handler() {
         this.app.use((req, res) => {
@@ -186,5 +236,3 @@ export class Server {
 
 
 }
-
-

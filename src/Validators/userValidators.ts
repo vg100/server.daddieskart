@@ -3,31 +3,23 @@ import User from "../Models/user";
 
 
 export class userValidators{
-   static register(){
-        return [body('mobile', 'Mobile Number is Required').isNumeric()
-        .custom((mobile, {req}) => {
-            return User.findOne({mobile: mobile}).then(user => {
-                if (user) {
-                    throw new Error('User Already Exist');
-                } else {
-                    return true;
-                }
-            })
-        }),
-                
-           ];
+    static register() {
+        return [
+            body('mobile').notEmpty().isNumeric().withMessage('Mobile Number is Required')
+        ];
     }
     static login() {
         return [body('mobile', 'Mobile Number is Required').isNumeric()
-            .custom((mobile, {req}) => {
-                return User.findOne({mobile: mobile}).then(customer => {
-                    if (customer) {
-                        req.user = customer;
-                        return true;
-                    } else {
-                        throw  new Error('User Does Not Exist');
-                    }
-                });
+            .custom(async (mobile, {req}) => {
+                const user = await User.findOne({mobile: mobile});
+                if (!user) {
+                    throw new Error('User does not exist');
+                }
+                if (!user.verified) {
+                    throw new Error('please verify the otp');
+                }
+                req.user = user;
+                return true;
             })]
     }
 

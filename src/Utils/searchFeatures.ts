@@ -22,7 +22,7 @@ class SearchFeatures {
     filter() {
         const queryCopy: any = { ...this.queryString };
     
-        const removeFields: string[] = ["keyword", "page", "limit","color","size"];
+        const removeFields: string[] = ["keyword", "page", "limit","color","size","sort"];
     
         removeFields.forEach(key => delete queryCopy[key]);
     
@@ -48,6 +48,38 @@ class SearchFeatures {
         this.query = this.query.find(JSON.parse(queryString));
         return this;
     }
+
+    //example .populate({ path: 'category', select: 'name' });
+    populate(populateOptions: any) {
+        this.query = this.query.populate(populateOptions);
+        return this;
+    }
+
+    sort() {
+        if (this.queryString.sort) {
+            const sortOptions: Record<string, any> = {
+                price_asc: { price: 1 }, // Ascending order by price
+                price_desc: { price: -1 }, // Descending order by price
+                recency_desc: { createdAt: -1 }, // Descending order by createdAt (recency)
+                popularity_desc: { popularityScore: -1 }, // Descending order by popularity
+                name_asc: { name: 1 }, // Ascending order by name
+                name_desc: { name: -1 }, // Descending order by name
+                rating_desc: { rating: -1 } // Descending order by rating
+                // Add more sorting options as needed
+            };
+            const sortBy = sortOptions[this.queryString.sort];
+       
+            if (sortBy) {
+                this.query = this.query.sort(sortBy);
+                console.log( this.query,'hhh')
+            } else {
+                this.query = this.query.sort(this.queryString.sort.split(',').join(' '));
+            }
+        }
+
+        return this;
+    }
+
 
     pagination(resultPerPage: number) {
         const currentPage: number = Number(this.queryString.page) || 1;

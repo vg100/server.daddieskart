@@ -2,19 +2,17 @@ import Product from "../Models/product";
 import Seller from "../Models/seller";
 import SearchFeatures from "../Utils/searchFeatures";
 import { Utils } from "../Utils/utils";
-
+import SocketManager from "../Utils/soket";
 export class productController {
     static async getAllProducts(req, res, next) {
         try {
-
+ 
             const perPage: number = 12;
             const currentPage: number = parseInt(req.query.page) || 1;
             const searchFeatures = new SearchFeatures(Product.find(), req.query);
 
-            searchFeatures
-                .search()
-                .filter()
-                .pagination(perPage);
+            searchFeatures.search().filter().sort().pagination(perPage);
+
 
             const results = await searchFeatures.query.exec();
 
@@ -41,7 +39,6 @@ export class productController {
     }
     static async getProductsById(req, res, next) {
         try {
-
             const product: any = await Product.findById(req.params.id)
                 .populate({
                     path: 'seller',
@@ -73,7 +70,7 @@ export class productController {
                 seller: seller?._id,
                 ...(specialOfferEndTime && { specialOfferEndTime: Utils.calculateEndTime(specialOfferEndTime) })
             }
-           const product = new Product(nProduct);
+            const product = new Product(nProduct);
             const updatedSeller = await Seller.findByIdAndUpdate(
                 seller?._id,
                 { $push: { products: product._id } },
@@ -90,9 +87,10 @@ export class productController {
 
     static async updateProduct(req, res, next) {
         try {
+            const { specialOfferEndTime } = req.body;
             const update = {
                 ...req.body,
-                specialOfferEndTime: Utils.calculateEndTime(req.body.specialOfferEndTime)
+                ...(specialOfferEndTime && { specialOfferEndTime: Utils.calculateEndTime(specialOfferEndTime) })
             }
             const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true })
             if (!product) {
@@ -118,11 +116,12 @@ export class productController {
     }
 
 
+
     static async topProduct(req, res, next) {
         try {
 
 
-
+            console.log('ggggg')
             // const topDealsProducts = await Product.find({
             //     'productVariants.salePrice': { $exists: true, $lt: '$productVariants.price' },
             // }).sort({ 'productVariants.salePrice': 1 }).limit(10);
@@ -132,10 +131,11 @@ export class productController {
             //     'productVariants.salePrice': { $exists: true },
             // }).sort({ $expr: { $gt: [{ $divide: [{ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }, '$productVariants.price'] }, 0] } }).limit(10);
 
-            // //Top Deals based on Price Difference:
+            //Top Deals based on Price Difference:
             // const topDealsProducts1 = await Product.find({
-            //     'productVariants.salePrice': { $exists: true },
+            //     'productVariants.salePrice': { $exists: true }
             // }).sort({ $subtract: ['$productVariants.price', '$productVariants.salePrice'] }).limit(10);
+
 
             // //Best Offers with High Ratings and Discount:
             // const bestOfferProducts1 = await Product.find({
@@ -211,6 +211,6 @@ export class productController {
         } catch (e) {
             next(e);
         }
-    }
+    }    
 
 }

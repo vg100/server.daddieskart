@@ -1,13 +1,11 @@
-import { Utils } from './Utils/utils';
+import SocketManager from './Utils/soket';
 import {Server} from './server'
 
 
-const server = new Server().server;
+const app = new Server().app;
 const port=process.env.PORT || 8000
 
-//   const dd=Utils.calculateEndTime("4h")
-//         console.log(dd,'hhh')
-
+const server = SocketManager.initSocket(app);
 
 server.listen(port,()=>{
  console.log(`[daddiesKart.server] running on http://localhost:${port}`);
